@@ -1,6 +1,10 @@
+package hci;
+
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
 import java.awt.Graphics;
@@ -59,7 +63,7 @@ public class ImageLabeller extends JFrame {
 		  	public void windowClosing(WindowEvent event) {
 		  		//here we exit the program (maybe we should ask if the user really wants to do it?)
 		  		//maybe we also want to store the polygons somewhere? and read them next time
-		  		System.out.println("Bye bye!");
+		  		System.out.println("Window closed");
 		    	System.exit(0);
 		  	}
 		});
@@ -91,7 +95,7 @@ public class ImageLabeller extends JFrame {
 		});
 		newPolyButton.setToolTipText("Click to add new object");
 		
-		toolboxPanel.add(newPolyButton);
+		//toolboxPanel.add(newPolyButton);
 		
 		//add toolbox to window
 		appPanel.add(toolboxPanel);
@@ -109,9 +113,9 @@ public class ImageLabeller extends JFrame {
 		try {
 			//create a window and display the image
 			ImageLabeller window = new ImageLabeller();
-			window.setupGUI(argv[0]);
+			window.setupGUI("images/test.jpg");
 		} catch (Exception e) {
-			System.err.println("Image: " + argv[0]);
+			//System.err.println("Image: " + argv[0]);
 			e.printStackTrace();
 		}
 	}
