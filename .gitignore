@@ -2,11 +2,7 @@
 bin/
 .project
 .classpath
-<<<<<<< Updated upstream
 .settings/
-=======
-.settings
->>>>>>> Stashed changes
 
 # Project files
 images/
