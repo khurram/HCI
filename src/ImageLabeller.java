@@ -36,14 +36,8 @@ public class ImageLabeller extends JFrame
                   );
  
         //Set up the GUI.
-        desktop = new ImageDesktop(this)
-        {
-            protected void paintComponent(Graphics g)
-            {
-                g.drawImage(image, 0, 0, null);
-            }
-
-        };
+        desktop = new ImageDesktop(image,this);
+        
         //create first "window"
         setContentPane(desktop);
         setJMenuBar(createMenuBar());

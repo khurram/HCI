@@ -1,13 +1,20 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import javax.imageio.ImageIO;
 import javax.swing.JDesktopPane;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
 
 
 public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener{
@@ -20,24 +27,54 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point startpoint = null;
 	private Point lastdragpoint = null;
 	
-	ArrayList<Point> currentPolygon = null;
-	HashSet<Point> currentPolygonSet = null;
-	ArrayList<ArrayList<Point>> polygonsList = null;
+	private ArrayList<Point> currentPolygon = null;
+	private HashSet<Point> currentPolygonSet = null;
+	private ArrayList<ArrayList<Point>> polygonsList = null;
+	
+	private JPanel drawings;
+	
+	private BufferedImage image;
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public ImageDesktop(ImageLabeller parent) {
+	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
 		super();
+		image = readImage;
+		
 		this.parent = parent;
 		currentPolygon = new ArrayList<Point>();
 		currentPolygonSet = new HashSet<Point>();
 		polygonsList = new ArrayList<ArrayList<Point>>();
 		dragging = false;
-		System.out.println("created");
+		
+		drawings = new JPanel();
+		drawings.setVisible(true);
+		drawings.setBackground(Color.blue);
+		this.add(drawings);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
+	
+	public void addNewPolygon() {
+		//finish the current polygon if any
+		if (currentPolygon != null ) {
+			polygonsList.add(currentPolygon);
+		}
+		Graphics2D g = (Graphics2D) this.getGraphics();
+		g.setColor(Color.RED);
+		g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
+		
+		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
+		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50);
+		startpoint = null;
+  	  	lastdragpoint = null;
+		currentPolygon = new ArrayList<Point>();
+		currentPolygonSet = new HashSet<Point>();
+		
+	}
+	
 	@Override
 	public void mouseDragged( MouseEvent e ) {
 		  x2 = e.getX();
@@ -55,11 +92,38 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	      x1 = x2;
 		  y1 = y2;
 	   }
-
+	
+	public void drawPolygon(ArrayList<Point> polygon) {
+		Graphics2D g = (Graphics2D)this.getGraphics();
+		g.setColor(Color.RED);
+		g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		for(int i = 0; i < polygon.size(); i++) {
+			Point currentVertex = polygon.get(i);
+			if (i != 0) {
+				Point prevVertex = polygon.get(i - 1);
+				g.drawLine(prevVertex.getX(), prevVertex.getY(), currentVertex.getX(), currentVertex.getY());
+			}
+			if(currentVertex.isPrimary()) {
+				g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
+			}
+		}
+	}
+	
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		mouseOverCheck(e);
 	}
+	@Override
+	protected void paintComponent(Graphics g)
+    {
+        g.drawImage(image, 0, 0, null);
+        for(ArrayList<Point> polygon : polygonsList) {
+			drawPolygon(polygon);
+		}
+		
+		//display current polygon
+		drawPolygon(currentPolygon);
+    }
 	
 	public void mouseOverCheck(MouseEvent e) {
 		Graphics2D g = (Graphics2D) this.getGraphics();
@@ -126,23 +190,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 	}
 
-	public void addNewPolygon() {
-		//finish the current polygon if any
-		if (currentPolygon != null ) {
-			polygonsList.add(currentPolygon);
-		}
-		Graphics2D g = (Graphics2D) this.getGraphics();
-		g.setColor(Color.RED);
-		g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
-		
-		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
-		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50);
-		startpoint = null;
-  	  	lastdragpoint = null;
-		currentPolygon = new ArrayList<Point>();
-		currentPolygonSet = new HashSet<Point>();
-		
-	}
+
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
