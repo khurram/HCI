@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.DefaultDesktopManager;  
 
 
 public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener{
@@ -43,6 +45,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		super();
 		image = readImage;
 		
+		this.setDesktopManager(new PaintDesktopManager());  
+		
 		this.parent = parent;
 		currentPolygon = new ArrayList<Point>();
 		currentPolygonSet = new HashSet<Point>();
@@ -56,6 +60,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
+	
+	private static class PaintDesktopManager extends DefaultDesktopManager {  
+		public void beginDraggingFrame(JComponent f)
+        {
+			f.repaint();
+        }	
+    } 
 	
 	public void addNewPolygon() {
 		//finish the current polygon if any

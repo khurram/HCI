@@ -20,7 +20,11 @@ import java.io.IOException;
  */
 public class ImageLabeller extends JFrame
                                implements ActionListener {
-    ImageDesktop desktop;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	ImageDesktop desktop;
     BufferedImage image = null;
     public ImageLabeller() throws Exception {
         super("InternalFrameDemo");
