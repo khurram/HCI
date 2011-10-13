@@ -39,8 +39,7 @@ public class ImagePanel extends JDesktopPane implements MouseListener, MouseMoti
 	
 	private Point startpoint = null;
 	private Point lastdragpoint = null;
-	
-	private  MyInternalFrame frame;
+
 	private Raster r; //raster to store current drawing
 	private Raster rpre; //raster to store previous drawing for undo
 	
@@ -69,7 +68,6 @@ public class ImagePanel extends JDesktopPane implements MouseListener, MouseMoti
 		this.setMinimumSize(panelSize);
 		this.setPreferredSize(panelSize);
 		this.setMaximumSize(panelSize);
-		createFrame();
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
@@ -79,14 +77,6 @@ public class ImagePanel extends JDesktopPane implements MouseListener, MouseMoti
 		g.drawImage(
 				image, 0, 0, null);
 		
-    }
-	protected void createFrame() {
-        frame = new MyInternalFrame();
-        frame.setVisible(true); //necessary as of 1.3
-        this.add(frame);
-        try {
-            frame.setSelected(true);
-        } catch (java.beans.PropertyVetoException e) {}
     }
 	/**
 	 * extended constructor - loads image to be labelled

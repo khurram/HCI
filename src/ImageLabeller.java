@@ -92,7 +92,7 @@ public class ImageLabeller extends JFrame
  
     //Create a new internal frame.
     protected void createFrame() {
-        MyInternalFrame frame = new MyInternalFrame();
+        LabelFrame frame = new LabelFrame();
         frame.setVisible(true); //necessary as of 1.3
         desktop.add(frame);
         try {
