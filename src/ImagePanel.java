@@ -1,5 +1,6 @@
 
 import javax.imageio.ImageIO;
+import javax.swing.JDesktopPane;
 import javax.swing.JPanel;
 
 import java.awt.BasicStroke;
@@ -22,7 +23,7 @@ import java.util.HashSet;
  * @author Michal
  *
  */
-public class ImagePanel extends JPanel implements MouseListener, MouseMotionListener {
+public class ImagePanel extends JDesktopPane implements MouseListener, MouseMotionListener {
 	/**
 	 * some java stuff to get rid of warnings
 	 */
@@ -39,7 +40,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	private Point startpoint = null;
 	private Point lastdragpoint = null;
 	
-	
+	private  MyInternalFrame frame;
 	private Raster r; //raster to store current drawing
 	private Raster rpre; //raster to store previous drawing for undo
 	
@@ -63,17 +64,30 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 		polygonsList = new ArrayList<ArrayList<Point>>();
 		dragging = false;
 		this.setVisible(true);
-
 		Dimension panelSize = new Dimension(800, 600);
 		this.setSize(panelSize);
 		this.setMinimumSize(panelSize);
 		this.setPreferredSize(panelSize);
 		this.setMaximumSize(panelSize);
-		
+		createFrame();
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		
 	}
-	
+	protected void paintComponent(Graphics g)
+    {
+		g.drawImage(
+				image, 0, 0, null);
+		
+    }
+	protected void createFrame() {
+        frame = new MyInternalFrame();
+        frame.setVisible(true); //necessary as of 1.3
+        this.add(frame);
+        try {
+            frame.setSelected(true);
+        } catch (java.beans.PropertyVetoException e) {}
+    }
 	/**
 	 * extended constructor - loads image to be labelled
 	 * @param imageName - path to image
@@ -82,38 +96,43 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	public ImagePanel(String imageName) throws Exception{
 		this();
 		image = ImageIO.read(new File(imageName));
-		if (image.getWidth() > 800 || image.getHeight() > 600) {
+		/*if (image.getWidth() > 800 || image.getHeight() > 600) {
 			int newWidth = image.getWidth() > 800 ? 800 : (image.getWidth() * 600)/image.getHeight();
 			int newHeight = image.getHeight() > 600 ? 600 : (image.getHeight() * 800)/image.getWidth();
 			System.out.println("SCALING TO " + newWidth + "x" + newHeight );
 			Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_FAST);
 			image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
-			image.getGraphics().drawImage(scaledImage, 0, 0, this);
-		}
+			//image.getGraphics().drawImage(scaledImage, 0, 0, this);
+		}*/
+		
 	}
-
+	
 	/**
 	 * Displays the image
 	 */
 	public void ShowImage() {
-		Graphics g = this.getGraphics();
-		
+		/*Graphics g = this.getGraphics();
+		//this.paintComponent(g);
 		if (image != null) {
 			g.drawImage(
 					image, 0, 0, null);
 		}
+		frame.paint(frame.getGraphics());*/
+		
 	}
-	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		
 		//display iamge
-		ShowImage();
+		if (image != null) {
+			g.drawImage(
+					image, 0, 0, null);
+		}
 		
 		//display all the completed polygons
 		for(ArrayList<Point> polygon : polygonsList) {
-			drawPolygon(polygon);
+			//drawPolygon(polygon);
 			//finishPolygon(polygon);
 		}
 		
@@ -166,7 +185,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 			finishPolygon(currentPolygon);
 			polygonsList.add(currentPolygon);
 		}
-		Graphics2D g = (Graphics2D) image.getGraphics();
+		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.setColor(Color.RED);
 		g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
 		startpoint = null;
@@ -216,7 +235,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	    	  return;
 	      }
 			
-	      Graphics2D g = (Graphics2D)image.getGraphics();
+	      Graphics2D g = (Graphics2D)this.getGraphics();
 			
 	      //if the left button than we will add a vertex to poly
 	      if (e.getButton() == MouseEvent.BUTTON1) {
@@ -251,7 +270,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 		    	  currentPolygon.add(startpoint);
 		    	  addNewPolygon();
 		    } else {
-		    	Graphics2D g = (Graphics2D)image.getGraphics();
+		    	Graphics2D g = (Graphics2D)this.getGraphics();
 		    	System.out.println("setting dragpoint");
 		    	lastdragpoint = new Point(e.getX(),e.getY(),8,true);
 		    	currentPolygon.add(lastdragpoint);
@@ -269,7 +288,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	      dragging = true;
 	      Point cur = new Point(x2,y2,4);
 	      currentPolygon.add(cur);
-	      Graphics2D g = (Graphics2D) image.getGraphics();
+	      Graphics2D g = (Graphics2D) this.getGraphics();
 	      r=image.getData();
 	      g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	      g.setColor(Color.RED);
@@ -287,7 +306,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void mouseOverCheck(MouseEvent e) {
-		Graphics2D g = (Graphics2D) image.getGraphics();
+		Graphics2D g = (Graphics2D) this.getGraphics();
 		for(int i=0;i<currentPolygon.size();i++) {
 			if(currentPolygon.get(i).isPrimary()) {
 				if(currentPolygon.get(i).near(new Point(e.getX(),e.getY(),1))) {
@@ -299,6 +318,6 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 				}
 			}
 		}
-		this.getGraphics().drawImage(image, 0, 0, null);
+		ShowImage();
 	}
 }

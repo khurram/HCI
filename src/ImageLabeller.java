@@ -1,120 +1,140 @@
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.imageio.ImageIO;
 import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-/**
- * Main class of the program - handles display of the main window
- * @author Michal
- *
+import javax.swing.JDesktopPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JMenuBar;
+import javax.swing.JFrame;
+import javax.swing.KeyStroke;
+ 
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+ 
+/*
+ * InternalFrameDemo.java requires:
+ *   MyInternalFrame.java
  */
-public class ImageLabeller extends JFrame {
-	/**
-	 * some java stuff to get rid of warnings
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * main window panel
-	 */
-	JPanel appPanel = null;
-	
-	/**
-	 * toolbox - put all buttons and stuff here!
-	 */
-	JPanel toolboxPanel = null;
-	
-	/**
-	 * image panel - displays image and editing area
-	 */
-	ImagePanel imagePanel = null;
-	
-	/**
-	 * handles New Object button action
-	 */
-	public void addNewPolygon() {
-		imagePanel.addNewPolygon();
-	}
-	
-	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
-		imagePanel.paint(g); //update image panel
-	}
-	
-	/**
-	 * sets up application window
-	 * @param imageFilename image to be loaded for editing
-	 * @throws Exception
-	 */
-	public void setupGUI(String imageFilename) throws Exception {
-		this.addWindowListener(new WindowAdapter() {
-		  	public void windowClosing(WindowEvent event) {
-		  		//here we exit the program (maybe we should ask if the user really wants to do it?)
-		  		//maybe we also want to store the polygons somewhere? and read them next time
-		  		System.out.println("Window closed");
-		    	System.exit(0);
-		  	}
-		});
+public class ImageLabeller extends JFrame
+                               implements ActionListener {
+    ImageDesktop desktop;
+    BufferedImage image = null;
+    public ImageLabeller() throws Exception {
+        super("InternalFrameDemo");
+        image = ImageIO.read(new File("images/test.jpg"));
 
-		//setup main window panel
-		appPanel = new JPanel();
-		this.setLayout(new BoxLayout(appPanel, BoxLayout.X_AXIS));
-		this.setContentPane(appPanel);
 		
-        //Create and set up the image panel.
-		imagePanel = new ImagePanel(imageFilename);
-		imagePanel.setOpaque(true); //content panes must be opaque
-		
-        appPanel.add(imagePanel);
+        //Make the big window be indented 50 pixels from each edge
+        //of the screen.
+        int inset = 50;
+   
+        setBounds(inset,inset,image.getWidth(),
+                image.getHeight()
+                  );
+ 
+        //Set up the GUI.
+        desktop = new ImageDesktop(this)
+        {
+            protected void paintComponent(Graphics g)
+            {
+                g.drawImage(image, 0, 0, null);
+            }
 
-        //create toolbox panel
-        toolboxPanel = new JPanel();
+        };
+        createFrame(); //create first "window"
+        setContentPane(desktop);
+        setJMenuBar(createMenuBar());
+        //Make dragging a little faster but perhaps uglier.
         
-        //Add button
-		JButton newPolyButton = new JButton("New object");
-		newPolyButton.setMnemonic(KeyEvent.VK_N);
-		newPolyButton.setSize(50, 20);
-		newPolyButton.setEnabled(true);
-		newPolyButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			    	addNewPolygon();
-			}
-		});
-		newPolyButton.setToolTipText("Click to add new object");
-		
-		//toolboxPanel.add(newPolyButton);
-		
-		//add toolbox to window
-		appPanel.add(toolboxPanel);
-		
-		//display all the stuff
-		this.pack();
-        this.setVisible(true);
-	}
-	
-	/**
-	 * Runs the program
-	 * @param argv path to an image
-	 */
-	public static void main(String argv[]) {
-		try {
-			//create a window and display the image
-			ImageLabeller window = new ImageLabeller();
-			window.setupGUI("images/test.jpg");
-		} catch (Exception e) {
-			//System.err.println("Image: " + argv[0]);
-			e.printStackTrace();
-		}
-	}
+       // desktop.add(image);
+    }
+ 
+    protected JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+ 
+        //Set up the lone menu.
+        JMenu menu = new JMenu("Document");
+        menu.setMnemonic(KeyEvent.VK_D);
+        menuBar.add(menu);
+ 
+        //Set up the first menu item.
+        JMenuItem menuItem = new JMenuItem("New");
+        menuItem.setMnemonic(KeyEvent.VK_N);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_N, ActionEvent.ALT_MASK));
+        menuItem.setActionCommand("new");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+ 
+        //Set up the second menu item.
+        menuItem = new JMenuItem("Quit");
+        menuItem.setMnemonic(KeyEvent.VK_Q);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_Q, ActionEvent.ALT_MASK));
+        menuItem.setActionCommand("quit");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+ 
+        return menuBar;
+    }
+ 
+    //React to menu selections.
+    public void actionPerformed(ActionEvent e) {
+        if ("new".equals(e.getActionCommand())) { //new
+            createFrame();
+        } else { //quit
+            quit();
+        }
+    }
+ 
+    //Create a new internal frame.
+    protected void createFrame() {
+        MyInternalFrame frame = new MyInternalFrame();
+        frame.setVisible(true); //necessary as of 1.3
+        desktop.add(frame);
+        try {
+            frame.setSelected(true);
+        } catch (java.beans.PropertyVetoException e) {}
+    }
+ 
+    //Quit the application.
+    protected void quit() {
+        System.exit(0);
+    }
+ 
+    /**
+     * Create the GUI and show it.  For thread safety,
+     * this method should be invoked from the
+     * event-dispatching thread.
+     */
+    private static void createAndShowGUI() {
+        //Make sure we have nice window decorations.
+        JFrame.setDefaultLookAndFeelDecorated(true);
+ 
+        //Create and set up the window.
+        try {
+        ImageLabeller frame = new ImageLabeller();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        //Display the window.
+        frame.setVisible(true);
+        } catch (Exception e) {
+        	System.out.println("fail");
+        }
+       
+       
+    }
+ 
+    public static void main(String[] args) {
+        //Schedule a job for the event-dispatching thread:
+        //creating and showing this application's GUI.
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
 }
