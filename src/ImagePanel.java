@@ -1,6 +1,7 @@
+package hci;
+
 
 import javax.imageio.ImageIO;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import java.awt.BasicStroke;
@@ -23,7 +24,7 @@ import java.util.HashSet;
  * @author Michal
  *
  */
-public class ImagePanel extends JLayeredPane implements MouseListener, MouseMotionListener {
+public class ImagePanel extends JPanel implements MouseListener, MouseMotionListener {
 	/**
 	 * some java stuff to get rid of warnings
 	 */
@@ -32,7 +33,6 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 	/**
 	 * image to be tagged
 	 */
-	JPanel imagePane = new JPanel();
 	BufferedImage image = null;
 	
 	private int x1,y1,x2,y2; //mouse locations
@@ -40,8 +40,7 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 	
 	private Point startpoint = null;
 	private Point lastdragpoint = null;
-	JPanel panelGreen = new JPanel();
-	JPanel panelBlue = new JPanel();
+	
 	
 	private Raster r; //raster to store current drawing
 	private Raster rpre; //raster to store previous drawing for undo
@@ -73,25 +72,7 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 		this.setPreferredSize(panelSize);
 		this.setMaximumSize(panelSize);
 		
-		imagePane.setBackground(Color.RED);
-		imagePane.setBounds(0, 0, 800, 600);
-		imagePane.setOpaque(true);
-		
-		panelBlue.setBackground(Color.BLUE);
-	    panelBlue.setBounds(220, 120, 200, 100);
-	    panelBlue.setOpaque(true);
-		
-		panelGreen.setBackground(Color.GREEN);
-	    panelGreen.setBounds(200, 100, 100, 100);
-	    panelGreen.setOpaque(true);
-	    
-	    this.add(imagePane,new Integer(0),0);
-	    this.add(panelGreen,new Integer(1),0);
-	    this.add(panelBlue,new Integer(2),0);
-		
-		
-	    
-	    addMouseListener(this);
+		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
 	
@@ -103,15 +84,21 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 	public ImagePanel(String imageName) throws Exception{
 		this();
 		image = ImageIO.read(new File(imageName));
-		
+		if (image.getWidth() > 800 || image.getHeight() > 600) {
+			int newWidth = image.getWidth() > 800 ? 800 : (image.getWidth() * 600)/image.getHeight();
+			int newHeight = image.getHeight() > 600 ? 600 : (image.getHeight() * 800)/image.getWidth();
+			System.out.println("SCALING TO " + newWidth + "x" + newHeight );
+			Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_FAST);
+			image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+			image.getGraphics().drawImage(scaledImage, 0, 0, this);
+		}
 	}
 
 	/**
 	 * Displays the image
 	 */
 	public void ShowImage() {
-		System.out.println("SCALING TO ");
-		Graphics g = imagePane.getGraphics();
+		Graphics g = this.getGraphics();
 		
 		if (image != null) {
 			g.drawImage(
@@ -141,7 +128,7 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 	 * @param polygon to be displayed
 	 */
 	public void drawPolygon(ArrayList<Point> polygon) {
-		Graphics2D g = (Graphics2D)image.getGraphics();
+		Graphics2D g = (Graphics2D)this.getGraphics();
 		g.setColor(Color.RED);
 		for(int i = 0; i < polygon.size(); i++) {
 			Point currentVertex = polygon.get(i);
@@ -165,7 +152,7 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 			Point firstVertex = polygon.get(0);
 			Point lastVertex = polygon.get(polygon.size() - 1);
 		
-			Graphics2D g = (Graphics2D)image.getGraphics();
+			Graphics2D g = (Graphics2D)this.getGraphics();
 			g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			g.setColor(Color.RED);
 			g.drawLine(firstVertex.getX(), firstVertex.getY(), lastVertex.getX(), lastVertex.getY());
@@ -308,14 +295,12 @@ public class ImagePanel extends JLayeredPane implements MouseListener, MouseMoti
 				if(currentPolygon.get(i).near(new Point(e.getX(),e.getY(),1))) {
 					g.setColor(Color.WHITE);
 					g.fillOval(currentPolygon.get(i).getX()-7,currentPolygon.get(i).getY()-7,15,15);
-					ShowImage();
 				} else {
 					g.setColor(Color.RED);
 					g.fillOval(currentPolygon.get(i).getX()-7,currentPolygon.get(i).getY()-7,15,15);
-					ShowImage();
 				}
 			}
 		}
-		
+		this.getGraphics().drawImage(image, 0, 0, null);
 	}
 }

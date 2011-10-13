@@ -1,3 +1,5 @@
+package hci;
+
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -48,7 +50,7 @@ public class ImageLabeller extends JFrame {
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-		//imagePanel.paint(g); //update image panel
+		imagePanel.paint(g); //update image panel
 	}
 	
 	/**
