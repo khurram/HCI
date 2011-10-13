@@ -1,5 +1,7 @@
 # Eclipse
 bin/
+.project
+.classpath
 
 # Project files
 images/
