@@ -1,5 +1,6 @@
 # Eclipse
 bin/
+.project
 
 # Project files
 images/
