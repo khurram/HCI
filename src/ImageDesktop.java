@@ -153,7 +153,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		System.out.println("moved!");
 		
 	}
 	private void drawVertex(MouseEvent e) {
