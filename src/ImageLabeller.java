@@ -1,11 +1,15 @@
 
 import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JInternalFrame;
 import javax.swing.JDesktopPane;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
  
 import java.awt.event.*;
@@ -25,6 +29,8 @@ public class ImageLabeller extends JFrame
 	 */
 	private static final long serialVersionUID = 1L;
 	ImageDesktop desktop;
+	JPanel mainArea;
+	JPanel rightPane;
     BufferedImage image = null;
     public ImageLabeller() throws Exception {
         super("InternalFrameDemo");
@@ -33,23 +39,53 @@ public class ImageLabeller extends JFrame
 		
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
-        int inset = 50;
+        int inset = 0;
    
-        setBounds(inset,inset,image.getWidth(),
-                image.getHeight()
-                  );
+        setBounds(inset,inset,image.getWidth()+150,
+                image.getHeight()+20);
  
+        
+        mainArea = new JPanel();
+        mainArea.setLayout(new BoxLayout(mainArea,BoxLayout.X_AXIS));
+        
+        
         //Set up the GUI.
         desktop = new ImageDesktop(image,this);
+        desktop.setSize(image.getWidth(),image.getHeight());
+        desktop.setPreferredSize(new Dimension(image.getWidth(),image.getHeight()));
+        desktop.setMinimumSize(new Dimension(image.getWidth(),image.getHeight()));
+        desktop.setMaximumSize(new Dimension(image.getWidth(),image.getHeight()));
         
+        JLabel header = new JLabel();
+        header.setText("<html><b>Labels:</b><br /></html>");
+        
+        rightPane = new JPanel();
+        rightPane.setSize(145,image.getHeight());
+        rightPane.setPreferredSize(new Dimension(145,image.getHeight()));
+        rightPane.setMinimumSize(new Dimension(145,image.getHeight()));
+        rightPane.setMaximumSize(new Dimension(145,image.getHeight()));
+        rightPane.setLayout(new BoxLayout(rightPane,BoxLayout.Y_AXIS));
+        rightPane.add(header);
+        
+        mainArea.add(desktop);
+        mainArea.add(Box.createRigidArea(new Dimension(5,image.getHeight())));
+        mainArea.add(rightPane);
+        mainArea.setSize(image.getWidth()+150,image.getHeight());
         //create first "window"
-        setContentPane(desktop);
-        setJMenuBar(createMenuBar());
+
+        setContentPane(mainArea);
+        
+        //setJMenuBar(createMenuBar());
         //Make dragging a little faster but perhaps uglier.
         
        // desktop.add(image);
     }
  
+    public void addLabel(String text) {
+    	JLabel newLabel = new JLabel();
+    	newLabel.setText(text);
+    	rightPane.add(newLabel);
+    }
     protected JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
  
@@ -59,11 +95,11 @@ public class ImageLabeller extends JFrame
         menuBar.add(menu);
  
         //Set up the first menu item.
-        JMenuItem menuItem = new JMenuItem("New");
-        menuItem.setMnemonic(KeyEvent.VK_N);
+        JMenuItem menuItem = new JMenuItem("Undo");
+        menuItem.setMnemonic(KeyEvent.VK_Z);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_N, ActionEvent.ALT_MASK));
-        menuItem.setActionCommand("new");
+                KeyEvent.VK_Z, ActionEvent.ALT_MASK));
+        menuItem.setActionCommand("undo");
         menuItem.addActionListener(this);
         menu.add(menuItem);
  

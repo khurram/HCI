@@ -14,6 +14,7 @@ import java.util.HashSet;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.DefaultDesktopManager;  
@@ -63,6 +64,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private static class PaintDesktopManager extends DefaultDesktopManager {  
 		public void beginDraggingFrame(JComponent f)
+        {
+			f.repaint();
+        }	
+		public void endDraggingFrame(JComponent f)
         {
 			f.repaint();
         }	
@@ -134,8 +139,16 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		//display current polygon
 		drawPolygon(currentPolygon);
+		
+		//repaint the frames to make sure they overlap
+		for(JInternalFrame f : this.getAllFrames()) {
+			f.repaint();
+		}
+		
     }
-	
+	public void addLabel(String text) {
+		parent.addLabel(text);
+	}
 	public void mouseOverCheck(MouseEvent e) {
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		for(int i=0;i<currentPolygon.size();i++) {

@@ -8,7 +8,7 @@ import java.beans.PropertyVetoException;
 
 public class LabelFrame extends JInternalFrame implements KeyListener{
     static int openFrameCount = 0;
-
+    private JTextField text;
     public LabelFrame(int x, int y) {
         super("Choose a Label", 
               false,
@@ -18,7 +18,7 @@ public class LabelFrame extends JInternalFrame implements KeyListener{
 
     
         setSize(300,80);
-        JTextField text = new JTextField();
+        text = new JTextField();
         text.addKeyListener(this);
         this.add(text);
         setLocation(x, y);
@@ -34,6 +34,7 @@ public class LabelFrame extends JInternalFrame implements KeyListener{
 	public void keyReleased(KeyEvent key) {
 		// TODO Auto-generated method stub
 		if(key.getKeyCode() == KeyEvent.VK_ENTER) {
+			((ImageDesktop)getDesktopPane()).addLabel(text.getText());
 			setVisible(false);
 			dispose();
 		}
