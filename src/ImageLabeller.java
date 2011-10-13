@@ -24,18 +24,16 @@ import java.io.IOException;
  */
 public class ImageLabeller extends JFrame
                                implements ActionListener {
-    /**
-	 * 
-	 */
+    
 	private static final long serialVersionUID = 1L;
-	ImageDesktop desktop;
-	JPanel mainArea;
-	JPanel rightPane;
-    BufferedImage image = null;
+	
+	private ImageDesktop desktop;
+	private JPanel mainArea;
+	private JPanel rightPane;
+    private BufferedImage image = null;
     public ImageLabeller() throws Exception {
         super("InternalFrameDemo");
         image = ImageIO.read(new File("images/test.jpg"));
-
 		
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
@@ -80,7 +78,6 @@ public class ImageLabeller extends JFrame
         
        // desktop.add(image);
     }
- 
     public void addLabel(String text) {
     	JLabel newLabel = new JLabel();
     	newLabel.setText(text);
@@ -150,11 +147,11 @@ public class ImageLabeller extends JFrame
  
         //Create and set up the window.
         try {
-        ImageLabeller frame = new ImageLabeller();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        //Display the window.
-        frame.setVisible(true);
+	        ImageLabeller frame = new ImageLabeller();
+	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	        
+	        //Display the window.
+	        frame.setVisible(true);
         } catch (Exception e) {
         	System.out.println("fail");
         }

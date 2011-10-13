@@ -72,7 +72,20 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			f.repaint();
         }	
     } 
-	
+	private boolean isOpenDialog() {
+		return getAllFrames().length > 0;
+	}
+	public void deletePolygon(int num) {
+		if(num == -1) {
+			polygonsList.remove(polygonsList.size()-1);
+			this.repaint();
+		} else {
+			polygonsList.remove(num);
+		}
+	}
+	public void deletePolygon(String name) {
+		
+	}
 	public void addNewPolygon() {
 		//finish the current polygon if any
 		if (currentPolygon != null ) {
@@ -93,21 +106,23 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	@Override
 	public void mouseDragged( MouseEvent e ) {
-		  x2 = e.getX();
-	      y2 = e.getY();
-	      dragging = true;
-	      Point cur = new Point(x2,y2,4);
-	      currentPolygon.add(cur);
-	      Graphics2D g = (Graphics2D) this.getGraphics();
-	      g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-	      g.setColor(Color.RED);
-	      g.drawLine(x1,y1,x2,y2);
-
-	      mouseOverCheck(e);
-
-	      x1 = x2;
-		  y1 = y2;
-	   }
+		if(!isOpenDialog()) {
+			x2 = e.getX();
+			y2 = e.getY();
+			dragging = true;
+			Point cur = new Point(x2,y2,4);
+			currentPolygon.add(cur);
+			Graphics2D g = (Graphics2D) this.getGraphics();
+			g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+			g.setColor(Color.RED);
+			g.drawLine(x1,y1,x2,y2);
+			
+			mouseOverCheck(e);
+			
+			x1 = x2;
+			y1 = y2;
+		}
+	}
 	
 	public void drawPolygon(ArrayList<Point> polygon) {
 		Graphics2D g = (Graphics2D)this.getGraphics();
@@ -127,7 +142,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		mouseOverCheck(e);
+		if(!isOpenDialog()) {
+			mouseOverCheck(e);
+		}
 	}
 	@Override
 	protected void paintComponent(Graphics g)
@@ -228,27 +245,32 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		drawVertex(e);
-		mouseOverCheck(e);
+		if(!isOpenDialog()) {
+			drawVertex(e);
+			mouseOverCheck(e);
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if(dragging) {
-			dragging = false;
-			if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
-		    	  currentPolygon.add(startpoint);
-		    	  addNewPolygon();
-		    } else {
-		    	Graphics2D g = (Graphics2D)this.getGraphics();
-		    	System.out.println("setting dragpoint");
-		    	lastdragpoint = new Point(e.getX(),e.getY(),8,true);
-		    	currentPolygon.add(lastdragpoint);
-		    	g.setColor(Color.RED);
-		    	g.fillOval(e.getX()-7,e.getY()-7,15,15);
-		    }
+		if(!isOpenDialog()) {
+			if(dragging) {
+			
+				dragging = false;
+				if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
+			    	  currentPolygon.add(startpoint);
+			    	  addNewPolygon();
+			    } else {
+			    	Graphics2D g = (Graphics2D)this.getGraphics();
+			    	System.out.println("setting dragpoint");
+			    	lastdragpoint = new Point(e.getX(),e.getY(),8,true);
+			    	currentPolygon.add(lastdragpoint);
+			    	g.setColor(Color.RED);
+			    	g.fillOval(e.getX()-7,e.getY()-7,15,15);
+			    }
+			}
+			mouseOverCheck(e);
 		}
-		mouseOverCheck(e);
 		
 	}
 
