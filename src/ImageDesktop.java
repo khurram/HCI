@@ -134,11 +134,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.setColor(Color.RED);
 		g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
+		
+		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
+		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50);
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
 		currentPolygonSet = new HashSet<Point>();
-		parent.createFrame();
+		
 	}
 	@Override
 	public void mouseEntered(MouseEvent arg0) {

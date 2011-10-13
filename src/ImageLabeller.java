@@ -44,7 +44,7 @@ public class ImageLabeller extends JFrame
             }
 
         };
-        createFrame(); //create first "window"
+        //create first "window"
         setContentPane(desktop);
         setJMenuBar(createMenuBar());
         //Make dragging a little faster but perhaps uglier.
@@ -84,15 +84,15 @@ public class ImageLabeller extends JFrame
     //React to menu selections.
     public void actionPerformed(ActionEvent e) {
         if ("new".equals(e.getActionCommand())) { //new
-            createFrame();
+            createFrame(30,30);
         } else { //quit
             quit();
         }
     }
  
     //Create a new internal frame.
-    protected void createFrame() {
-        LabelFrame frame = new LabelFrame();
+    protected void createFrame(int x,int y) {
+        LabelFrame frame = new LabelFrame(x,y);
         frame.setVisible(true); //necessary as of 1.3
         desktop.add(frame);
         try {

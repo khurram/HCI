@@ -1,23 +1,24 @@
 
 import javax.swing.JInternalFrame;
+import javax.swing.JTextField;
 
 import java.awt.event.*;
 import java.awt.*;
 
 public class LabelFrame extends JInternalFrame {
     static int openFrameCount = 0;
-    static final int xOffset = 30, yOffset = 30;
 
-    public LabelFrame() {
-        super("Document #" + (++openFrameCount), 
-              true, //resizable
+    public LabelFrame(int x, int y) {
+        super("Choose a Label", 
+              false,
               true, //closable
-              true, //maximizable
-              true);//iconifiable
+              false, //maximizable
+              false);//iconifiable
 
     
-        setSize(100,300);
-
-        setLocation(xOffset*openFrameCount, yOffset*openFrameCount);
+        setSize(300,80);
+        JTextField text = new JTextField();
+        this.add(text);
+        setLocation(x, y);
     }
 }
