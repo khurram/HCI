@@ -2,8 +2,6 @@
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JInternalFrame;
-import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -15,12 +13,14 @@ import javax.swing.KeyStroke;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.*;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
  
-/*
- * InternalFrameDemo.java requires:
- *   MyInternalFrame.java
+/**
+ * HCI Project Phase 1
+ * 
+ * @author Sam Shelley, Khurram Aslam
  */
 public class ImageLabeller extends JFrame
                                implements ActionListener {
@@ -31,9 +31,9 @@ public class ImageLabeller extends JFrame
 	private JPanel mainArea;
 	private JPanel rightPane;
     private BufferedImage image = null;
-    public ImageLabeller() throws Exception {
+    public ImageLabeller(String imageFileName) throws IOException {
         super("InternalFrameDemo");
-        image = ImageIO.read(new File("images/test.jpg"));
+        image = ImageIO.read(new File(imageFileName));
 		
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
@@ -73,38 +73,35 @@ public class ImageLabeller extends JFrame
 
         setContentPane(mainArea);
         
-        //setJMenuBar(createMenuBar());
-        //Make dragging a little faster but perhaps uglier.
-        
-       // desktop.add(image);
+        setJMenuBar(createMenuBar());
     }
-    public void addLabel(String text) {
+    protected void addLabel(String text) {
     	JLabel newLabel = new JLabel();
     	newLabel.setText(text);
     	rightPane.add(newLabel);
     }
-    protected JMenuBar createMenuBar() {
+    private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
  
-        //Set up the lone menu.
-        JMenu menu = new JMenu("Document");
-        menu.setMnemonic(KeyEvent.VK_D);
+        //main menu
+        JMenu menu = new JMenu("File (F)");
+        menu.setMnemonic(KeyEvent.VK_F);
         menuBar.add(menu);
  
-        //Set up the first menu item.
+        //undo option
         JMenuItem menuItem = new JMenuItem("Undo");
         menuItem.setMnemonic(KeyEvent.VK_Z);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_Z, ActionEvent.ALT_MASK));
+                KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
         menuItem.setActionCommand("undo");
         menuItem.addActionListener(this);
         menu.add(menuItem);
  
-        //Set up the second menu item.
+        //quit option
         menuItem = new JMenuItem("Quit");
         menuItem.setMnemonic(KeyEvent.VK_Q);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_Q, ActionEvent.ALT_MASK));
+                KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
         menuItem.setActionCommand("quit");
         menuItem.addActionListener(this);
         menu.add(menuItem);
@@ -114,9 +111,9 @@ public class ImageLabeller extends JFrame
  
     //React to menu selections.
     public void actionPerformed(ActionEvent e) {
-        if ("new".equals(e.getActionCommand())) { //new
-            createFrame(30,30);
-        } else { //quit
+        if ("undo".equals(e.getActionCommand())) {
+            System.out.println("trying to undo");
+        } else {
             quit();
         }
     }
@@ -124,11 +121,11 @@ public class ImageLabeller extends JFrame
     //Create a new internal frame.
     protected void createFrame(int x,int y) {
         LabelFrame frame = new LabelFrame(x,y);
-        frame.setVisible(true); //necessary as of 1.3
+        frame.setVisible(true);
         desktop.add(frame);
         try {
             frame.setSelected(true);
-        } catch (java.beans.PropertyVetoException e) {}
+        } catch (PropertyVetoException e) {}
     }
  
     //Quit the application.
@@ -136,18 +133,12 @@ public class ImageLabeller extends JFrame
         System.exit(0);
     }
  
-    /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event-dispatching thread.
-     */
-    private static void createAndShowGUI() {
-        //Make sure we have nice window decorations.
+    private static void setUpGUI(String imageFileName) {
         JFrame.setDefaultLookAndFeelDecorated(true);
  
         //Create and set up the window.
         try {
-	        ImageLabeller frame = new ImageLabeller();
+	        ImageLabeller frame = new ImageLabeller(imageFileName);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        
 	        //Display the window.
@@ -164,7 +155,7 @@ public class ImageLabeller extends JFrame
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI();
+                setUpGUI("images/test.jpg");
             }
         });
     }

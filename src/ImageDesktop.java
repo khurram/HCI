@@ -6,20 +6,20 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.DefaultDesktopManager;  
 
-
+/**
+ * HCI Project Phase 1
+ * 
+ * @author Sam Shelley, Khurram Aslam
+ */
 public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener{
 
 	private ImageLabeller parent;
@@ -63,6 +63,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	private static class PaintDesktopManager extends DefaultDesktopManager {  
+		private static final long serialVersionUID = 1L;
 		public void beginDraggingFrame(JComponent f)
         {
 			f.repaint();
@@ -233,13 +234,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

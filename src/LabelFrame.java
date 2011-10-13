@@ -5,19 +5,19 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
 import java.awt.event.*;
-import java.awt.*;
-import java.beans.PropertyVetoException;
+
+
+/**
+ * HCI Project Phase 1
+ * 
+ * @author Sam Shelley, Khurram Aslam
+ */
 
 public class LabelFrame extends JInternalFrame implements KeyListener, InternalFrameListener{
-    private JTextField text;
+	private static final long serialVersionUID = 1L;
+	private JTextField text;
     public LabelFrame(int x, int y) {
-        super("Choose a Label", 
-              false,
-              true, //closable
-              false, //maximizable
-              false);//iconifiable
-
-        
+        super("Choose a Label", false, true, false, false); 
         setSize(300,80);
         text = new JTextField();
         text.addKeyListener(this);
@@ -29,13 +29,12 @@ public class LabelFrame extends JInternalFrame implements KeyListener, InternalF
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent key) {
-		// TODO Auto-generated method stub
 		if(key.getKeyCode() == KeyEvent.VK_ENTER) {
 			((ImageDesktop)getDesktopPane()).addLabel(text.getText());
 			setVisible(false);
@@ -50,43 +49,43 @@ public class LabelFrame extends JInternalFrame implements KeyListener, InternalF
 
 	@Override
 	public void internalFrameActivated(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void internalFrameClosed(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void internalFrameClosing(InternalFrameEvent arg0) {
+		//removes current polygon
 		((ImageDesktop)getDesktopPane()).deletePolygon(-1);
 		
 	}
 
 	@Override
 	public void internalFrameDeactivated(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void internalFrameDeiconified(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void internalFrameIconified(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void internalFrameOpened(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 }
