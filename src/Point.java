@@ -1,3 +1,5 @@
+package hci;
+
 
 /**
  * simple class for handling points
