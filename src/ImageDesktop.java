@@ -31,7 +31,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point lastdragpoint = null;
 	
 	private ArrayList<Point> currentPolygon = null;
-	private HashSet<Point> currentPolygonSet = null;
 	private ArrayList<ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
@@ -50,7 +49,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		this.parent = parent;
 		currentPolygon = new ArrayList<Point>();
-		currentPolygonSet = new HashSet<Point>();
 		polygonsList = new ArrayList<ArrayList<Point>>();
 		dragging = false;
 		
@@ -101,8 +99,22 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
-		currentPolygonSet = new HashSet<Point>();
 		
+	}
+	
+	public void undo() {
+		if(currentPolygon.size() > 1) {
+			currentPolygon.remove(currentPolygon.size()-1);
+			while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
+				currentPolygon.remove(currentPolygon.size()-1);
+			}
+			repaint();
+		} else if(currentPolygon.size() == 1) {
+			currentPolygon.remove(0);
+			startpoint = null;
+			lastdragpoint = null;
+			repaint();
+		}
 	}
 	
 	@Override
@@ -205,7 +217,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	    	  dragpoint = true;
 	      } else {
 	    	  currentPolygon.add(new Point(x1,y1,8,true));
-	    	  currentPolygonSet.add(new Point(x1,y1,8,true));
 	      }
 	      
 			

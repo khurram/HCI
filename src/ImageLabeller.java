@@ -112,7 +112,7 @@ public class ImageLabeller extends JFrame
     //React to menu selections.
     public void actionPerformed(ActionEvent e) {
         if ("undo".equals(e.getActionCommand())) {
-            System.out.println("trying to undo");
+            desktop.undo();
         } else {
             quit();
         }
