@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.swing.JComponent;
@@ -32,6 +33,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private ArrayList<Point> currentPolygon = null;
 	private ArrayList<ArrayList<Point>> polygonsList = null;
+	private HashMap<String,ArrayList<Point>> polygonLabels = null;
 	
 	private JPanel drawings;
 	
@@ -108,6 +110,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
 				currentPolygon.remove(currentPolygon.size()-1);
 			}
+			lastdragpoint = currentPolygon.get(currentPolygon.size()-1);
 			repaint();
 		} else if(currentPolygon.size() == 1) {
 			currentPolygon.remove(0);
@@ -274,7 +277,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			    	  addNewPolygon();
 			    } else {
 			    	Graphics2D g = (Graphics2D)this.getGraphics();
-			    	System.out.println("setting dragpoint");
 			    	lastdragpoint = new Point(e.getX(),e.getY(),8,true);
 			    	currentPolygon.add(lastdragpoint);
 			    	g.setColor(Color.RED);
