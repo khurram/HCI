@@ -1,10 +1,17 @@
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.*;
+import java.beans.PropertyVetoException;
 
 
 /**
@@ -13,18 +20,39 @@ import java.awt.event.*;
  * @author Sam Shelley, Khurram Aslam
  */
 
-public class LabelFrame extends JInternalFrame implements KeyListener, InternalFrameListener{
+public class LabelFrame extends JInternalFrame implements ActionListener, KeyListener, InternalFrameListener{
 	private static final long serialVersionUID = 1L;
 	private JTextField text;
-    public LabelFrame(int x, int y) {
+	ImageDesktop parent;
+    public LabelFrame(ImageDesktop parent,int x, int y) {
         super("Choose a Label", false, true, false, false); 
-        setSize(300,80);
+        this.parent = parent;
+        setSize(300,120);
         text = new JTextField();
+        text.setPreferredSize(new Dimension(250,30));
+        text.setMaximumSize(new Dimension(250,30));
+        text.setMinimumSize(new Dimension(250,30));
         text.addKeyListener(this);
         addInternalFrameListener(this);
-        add(text);
-        setLocation(x, y);
         
+        JButton discard = new JButton();
+        discard.setText("Discard");
+        discard.setActionCommand("discard");
+        discard.addActionListener(this);
+        
+      
+        JButton submit = new JButton();
+        submit.setText("Submit");
+        submit.addActionListener(this);
+        submit.setActionCommand("submit");
+        
+        JPanel main = new JPanel();
+        setContentPane(main);
+        main.add(text);
+        main.add(discard);
+        main.add(submit);
+        main.setLayout(new FlowLayout(FlowLayout.CENTER));
+        setLocation(x, y);
     }
 
 	@Override
@@ -36,8 +64,15 @@ public class LabelFrame extends JInternalFrame implements KeyListener, InternalF
 	@Override
 	public void keyReleased(KeyEvent key) {
 		if(key.getKeyCode() == KeyEvent.VK_ENTER) {
-			((ImageDesktop)getDesktopPane()).addLabel(text.getText());
+			addLabel(text.getText());
 			setVisible(false);
+			dispose();
+		} else if(key.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			try {
+				setClosed(true);
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
 			dispose();
 		}
 	}
@@ -86,6 +121,25 @@ public class LabelFrame extends JInternalFrame implements KeyListener, InternalF
 	@Override
 	public void internalFrameOpened(InternalFrameEvent arg0) {
 		
+		
+	}
+	private void addLabel(String label) {
+		parent.addLabel(label);
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if("submit".equals(e.getActionCommand())) {
+			addLabel(text.getText());
+			setVisible(false);
+			dispose();
+		} else if("discard".equals(e.getActionCommand())) {
+			try {
+				setClosed(true);
+			} catch (PropertyVetoException e1) {
+				System.out.println("Fatal error");
+			}
+			dispose();
+		}
 		
 	}
 }
