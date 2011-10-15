@@ -75,13 +75,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private boolean isOpenDialog() {
 		return getAllFrames().length > 0;
 	}
-	public void deletePolygon(int num) {
-		if(num == -1) {
-			polygonsList.remove(polygonsList.size()-1);
-			this.repaint();
-		} else {
-			polygonsList.remove(num);
-		}
+	public void deleteCurrentPolygon() {
+		startpoint = null;
+  	  	lastdragpoint = null;
+		currentPolygon = new ArrayList<Point>();
+		repaint();
 	}
 	public void deletePolygon(String name) {
 		
@@ -214,8 +212,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	    	  y1 = startpoint.getY();
 	    	  end = true;
 	      } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
-	    	  System.out.println("hiya");
-	    	  currentPolygon.add(lastdragpoint);
+	    	  //we don't add another point here because you are just starting
+	    	  //another drag
 	    	  dragpoint = true;
 	      } else {
 	    	  currentPolygon.add(new Point(x1,y1,8,true));
@@ -269,7 +267,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void mouseReleased(MouseEvent e) {
 		if(!isOpenDialog()) {
 			if(dragging) {
-			
 				dragging = false;
 				if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
 			    	  currentPolygon.add(startpoint);

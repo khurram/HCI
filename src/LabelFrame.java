@@ -1,10 +1,8 @@
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -99,7 +97,7 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 	@Override
 	public void internalFrameClosing(InternalFrameEvent arg0) {
 		//removes current polygon
-		((ImageDesktop)getDesktopPane()).deletePolygon(-1);
+		parent.deleteCurrentPolygon();
 		
 	}
 
