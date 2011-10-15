@@ -2,6 +2,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -30,6 +31,8 @@ public class ImageLabeller extends JFrame
 	private ImageDesktop desktop;
 	private JPanel mainArea;
 	private JPanel rightPane;
+	private JPanel labelNames;
+	private JPanel deleteButtons;
     private BufferedImage image = null;
     public ImageLabeller(String imageFileName) throws IOException {
         super("InternalFrameDemo");
@@ -55,15 +58,30 @@ public class ImageLabeller extends JFrame
         desktop.setMaximumSize(new Dimension(image.getWidth(),image.getHeight()));
         
         JLabel header = new JLabel();
-        header.setText("<html><b>Labels:</b><br /></html>");
+        header.setText("<html><b>Labels:</b></html>");
+        Box box = new Box(BoxLayout.LINE_AXIS);
+        //box.add(header);
         
         rightPane = new JPanel();
         rightPane.setSize(145,image.getHeight());
         rightPane.setPreferredSize(new Dimension(145,image.getHeight()));
         rightPane.setMinimumSize(new Dimension(145,image.getHeight()));
         rightPane.setMaximumSize(new Dimension(145,image.getHeight()));
-        rightPane.setLayout(new BoxLayout(rightPane,BoxLayout.Y_AXIS));
-        rightPane.add(header);
+        rightPane.setLayout(new BoxLayout(rightPane,BoxLayout.X_AXIS));
+        //rightPane.add(header);
+        
+        labelNames = new JPanel();
+        labelNames.setLayout(new BoxLayout(labelNames, BoxLayout.Y_AXIS));
+        labelNames.setPreferredSize(new Dimension(120,image.getHeight()));
+        labelNames.setMinimumSize(new Dimension(120,image.getHeight()));
+        labelNames.setMaximumSize(new Dimension(120,image.getHeight()));
+        deleteButtons = new JPanel();
+        deleteButtons.setLayout(new BoxLayout(deleteButtons, BoxLayout.Y_AXIS));
+        deleteButtons.setPreferredSize(new Dimension(25,image.getHeight()));
+        deleteButtons.setMinimumSize(new Dimension(25,image.getHeight()));
+        deleteButtons.setMaximumSize(new Dimension(25,image.getHeight()));
+        rightPane.add(labelNames);
+        rightPane.add(deleteButtons);
         
         mainArea.add(desktop);
         mainArea.add(Box.createRigidArea(new Dimension(5,image.getHeight())));
@@ -75,10 +93,39 @@ public class ImageLabeller extends JFrame
         
         setJMenuBar(createMenuBar());
     }
-    protected void addLabel(String text) {
+    protected void addLabel(String text, int id) {
     	JLabel newLabel = new JLabel();
     	newLabel.setText(text);
-    	rightPane.add(newLabel);
+    	
+    	JButton x = new JButton();
+    	x.setText("X");
+    	x.setPreferredSize(new Dimension(20,15));
+    	x.setMaximumSize(new Dimension(20,15));
+    	x.setMinimumSize(new Dimension(20,15));
+    	x.setMargin(new Insets(1, 1, 1, 1));
+    	x.addActionListener(new DeleteListener(id,newLabel,x));
+    	labelNames.add(newLabel);
+    	deleteButtons.add(x);
+
+    }
+    private class DeleteListener implements ActionListener{
+    	
+    	private int id;
+    	private JLabel label;
+    	private JButton x;
+		public DeleteListener(int id, JLabel label, JButton x) {
+			this.id = id;
+			this.label = label;
+			this.x = x;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			label.setVisible(false);
+			x.setVisible(false);
+			desktop.deletePolygon(id);
+		}
+    	
     }
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();

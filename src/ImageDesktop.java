@@ -31,12 +31,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point lastdragpoint = null;
 	
 	private ArrayList<Point> currentPolygon = null;
-	private ArrayList<ArrayList<Point>> polygonsList = null;
-	private HashMap<String,ArrayList<Point>> polygonLabels = null;
+	private HashMap<Integer,ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
 	
 	private BufferedImage image;
+	
+	private int labelIncrementor = 0;
 	
 	/**
 	 * 
@@ -46,17 +47,17 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		super();
 		image = readImage;
 		
-		this.setDesktopManager(new PaintDesktopManager());  
+		setDesktopManager(new PaintDesktopManager());  
 		
 		this.parent = parent;
 		currentPolygon = new ArrayList<Point>();
-		polygonsList = new ArrayList<ArrayList<Point>>();
+		polygonsList = new HashMap<Integer,ArrayList<Point>>();
 		dragging = false;
 		
 		drawings = new JPanel();
 		drawings.setVisible(true);
 		drawings.setBackground(Color.blue);
-		this.add(drawings);
+		add(drawings);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
@@ -81,8 +82,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		currentPolygon = new ArrayList<Point>();
 		repaint();
 	}
-	public void deletePolygon(String name) {
-		
+	public void deletePolygon(int id) {
+		System.out.println(id);
+		polygonsList.remove(new Integer(id));
+		//System.out.println(polygonsList.size());
+		repaint();
 	}
 	public void addNewPolygon() {
 		//finish the current polygon if any
@@ -91,9 +95,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		
 	}
-	public void finishNewPolygon() {
+	public void finishNewPolygon(String label) {
 		if (currentPolygon != null ) {
-			polygonsList.add(currentPolygon);
+			polygonsList.put(labelIncrementor,currentPolygon);
+			parent.addLabel(label,labelIncrementor++);
 		}
 		startpoint = null;
   	  	lastdragpoint = null;
@@ -162,7 +167,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	protected void paintComponent(Graphics g)
     {
         g.drawImage(image, 0, 0, null);
-        for(ArrayList<Point> polygon : polygonsList) {
+        for(ArrayList<Point> polygon : polygonsList.values()) {
 			drawPolygon(polygon);
 		}
 		
@@ -176,8 +181,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
     }
 	public void addLabel(String text) {
-		parent.addLabel(text);
-		finishNewPolygon();
+		finishNewPolygon(text);
 	}
 	public void mouseOverCheck(MouseEvent e) {
 		Graphics2D g = (Graphics2D) this.getGraphics();
