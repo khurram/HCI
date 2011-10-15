@@ -8,7 +8,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -89,19 +88,18 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	public void addNewPolygon() {
 		//finish the current polygon if any
+		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
+		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50);
+		
+		
+	}
+	public void finishNewPolygon() {
 		if (currentPolygon != null ) {
 			polygonsList.add(currentPolygon);
 		}
-		Graphics2D g = (Graphics2D) this.getGraphics();
-		g.setColor(Color.RED);
-		g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
-		
-		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
-		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50);
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
-		
 	}
 	
 	public void undo() {
@@ -181,6 +179,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
     }
 	public void addLabel(String text) {
 		parent.addLabel(text);
+		finishNewPolygon();
 	}
 	public void mouseOverCheck(MouseEvent e) {
 		Graphics2D g = (Graphics2D) this.getGraphics();

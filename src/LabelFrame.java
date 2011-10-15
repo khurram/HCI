@@ -74,6 +74,9 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 				e.printStackTrace();
 			}
 			dispose();
+		} else if(key.getKeyCode() == KeyEvent.VK_Z && key.isControlDown()) {
+			setVisible(false);
+			dispose();
 		}
 	}
 
