@@ -6,18 +6,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.activation.DataSource;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -29,7 +20,7 @@ import javax.swing.DefaultDesktopManager;
  * 
  * @author Sam Shelley, Khurram Aslam
  */
-public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener, Serializable{
+public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener{
 
 	private ImageLabeller parent;
 	
@@ -40,7 +31,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point lastdragpoint = null;
 	
 	private ArrayList<Point> currentPolygon = null;
-	HashMap<Integer,ArrayList<Point>> polygonsList = null;
+	private HashMap<Integer,ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
 	
@@ -48,6 +39,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private int labelIncrementor = 0;
 	
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
 		super();
@@ -101,38 +95,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		
 	}
-	
-	public void savePolygons(HashMap<Integer,ArrayList<Point>> polygonsList) {
-		try {
-	        FileOutputStream fos = new FileOutputStream("datas.txt");
-	        ObjectOutputStream oos = new ObjectOutputStream(fos);
-	        System.out.println(polygonsList);
-
-	        oos.writeObject(polygonsList);
-	        oos.flush();
-	        oos.close();
-	        fos.close();
-	      } catch (IOException ex) {
-	        System.err.println("Could not write polygons");
-	      }
-	}
-	
-	public void openPolygons(String polygonFile) {
-		try {
-	        FileInputStream fis = new FileInputStream(polygonFile);
-	        ObjectInputStream ois = new ObjectInputStream(fis);
-	        polygonsList = (HashMap<Integer,ArrayList<Point>>) (ois.readObject());
-	        ois.close();
-	        fis.close();
-	        repaint();
-	      } catch (ClassNotFoundException ex) {
-	        System.err.println("Could not load in polygons");
-	      } catch (IOException ex) {
-	        System.err.println("Could not load in polygons");
-	      }
-	}
-	
-	
 	public void finishNewPolygon(String label) {
 		if (currentPolygon != null ) {
 			polygonsList.put(labelIncrementor,currentPolygon);

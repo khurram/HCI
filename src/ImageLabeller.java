@@ -1,3 +1,4 @@
+
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -22,7 +23,9 @@ import java.io.IOException;
  * 
  * @author Sam Shelley, Khurram Aslam
  */
-public class ImageLabeller extends JFrame implements ActionListener {
+public class ImageLabeller extends JFrame
+                               implements ActionListener {
+    
 	private static final long serialVersionUID = 1L;
 	
 	private ImageDesktop desktop;
@@ -31,7 +34,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	private JPanel labelNames;
 	private JPanel deleteButtons;
     private BufferedImage image = null;
-    
     public ImageLabeller(String imageFileName) throws IOException {
         super("InternalFrameDemo");
         image = ImageIO.read(new File(imageFileName));
@@ -43,8 +45,10 @@ public class ImageLabeller extends JFrame implements ActionListener {
         setBounds(inset,inset,image.getWidth()+150,
                 image.getHeight()+20);
  
+        
         mainArea = new JPanel();
         mainArea.setLayout(new BoxLayout(mainArea,BoxLayout.X_AXIS));
+        
         
         //Set up the GUI.
         desktop = new ImageDesktop(image,this);
@@ -89,7 +93,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
         
         setJMenuBar(createMenuBar());
     }
-    
     protected void addLabel(String text, int id) {
     	JLabel newLabel = new JLabel();
     	newLabel.setText(text);
@@ -103,9 +106,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	x.addActionListener(new DeleteListener(id,newLabel,x));
     	labelNames.add(newLabel);
     	deleteButtons.add(x);
-    	System.out.println(newLabel);
+
     }
-    
     private class DeleteListener implements ActionListener{
     	
     	private int id;
@@ -125,46 +127,22 @@ public class ImageLabeller extends JFrame implements ActionListener {
 		}
     	
     }
-    
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
  
-        //file menu
-        JMenu fmenu = new JMenu("File");
-        fmenu.setMnemonic(KeyEvent.VK_F);
-        menuBar.add(fmenu);
-        
-        //edit menu
-        JMenu emenu = new JMenu("Edit");
-        emenu.setMnemonic(KeyEvent.VK_F);
-        menuBar.add(emenu);
-
-        //open option
-        JMenuItem menuItem = new JMenuItem("Open");
-        menuItem.setMnemonic(KeyEvent.VK_O);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-        menuItem.setActionCommand("open");
-        menuItem.addActionListener(this);
-        fmenu.add(menuItem);
-        
-        //save option
-        menuItem = new JMenuItem("Save");
-        menuItem.setMnemonic(KeyEvent.VK_S);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-        menuItem.setActionCommand("save");
-        menuItem.addActionListener(this);
-        fmenu.add(menuItem);
-        
+        //main menu
+        JMenu menu = new JMenu("File (F)");
+        menu.setMnemonic(KeyEvent.VK_F);
+        menuBar.add(menu);
+ 
         //undo option
-        menuItem = new JMenuItem("Undo");
+        JMenuItem menuItem = new JMenuItem("Undo");
         menuItem.setMnemonic(KeyEvent.VK_Z);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
         menuItem.setActionCommand("undo");
         menuItem.addActionListener(this);
-        emenu.add(menuItem);
+        menu.add(menuItem);
  
         //quit option
         menuItem = new JMenuItem("Quit");
@@ -173,7 +151,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
                 KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
         menuItem.setActionCommand("quit");
         menuItem.addActionListener(this);
-        fmenu.add(menuItem);
+        menu.add(menuItem);
  
         return menuBar;
     }
@@ -182,10 +160,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if ("undo".equals(e.getActionCommand())) {
             desktop.undo();
-        } else if ("open".equals(e.getActionCommand())) {
-        	desktop.openPolygons("datas.txt");
-        } else if ("save".equals(e.getActionCommand())) {
-        	desktop.savePolygons(desktop.polygonsList);
         } else {
             quit();
         }
@@ -219,6 +193,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } catch (Exception e) {
         	System.out.println("fail");
         }
+       
        
     }
  

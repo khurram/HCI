@@ -1,7 +1,11 @@
-import java.io.Serializable;
 
-public class Point implements Serializable {
-	private static final long serialVersionUID = 1L;
+
+/**
+ * simple class for handling points
+ * @author Michal
+ *
+ */
+public class Point  {
 	private int x = 0;
 	private int y = 0;
 	public int radius = 0;
@@ -15,19 +19,16 @@ public class Point implements Serializable {
 		this.x = x;
 		this.y = y;
 	}
-	
 	public Point(int x, int y, int radius) {
 		this.x = x;
 		this.y = y;
 		this.radius = radius;
 	}
-	
 	public Point(int x, int y, boolean primary) {
 		this.x = x;
 		this.y = y;
 		this.primary = primary;
 	}
-	
 	public Point(int x, int y, int radius, boolean primary) {
 		this.x = x;
 		this.y = y;
@@ -50,11 +51,9 @@ public class Point implements Serializable {
 	public void setY(int y) {
 		this.y = y;
 	}
-	
 	public boolean isPrimary() {
 		return primary;
 	}
-	
 	public boolean near(Point pt) {
 		if((Math.abs(this.getX() - pt.getX()) <= radius) && (Math.abs(this.getY() - pt.getY()) <= radius)) {
 			
