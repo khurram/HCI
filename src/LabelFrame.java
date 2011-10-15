@@ -1,4 +1,3 @@
-
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
@@ -11,7 +10,6 @@ import java.awt.FlowLayout;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 
-
 /**
  * HCI Project Phase 1
  * 
@@ -20,8 +18,10 @@ import java.beans.PropertyVetoException;
 
 public class LabelFrame extends JInternalFrame implements ActionListener, KeyListener, InternalFrameListener{
 	private static final long serialVersionUID = 1L;
+	
 	private JTextField text;
 	ImageDesktop parent;
+	
     public LabelFrame(ImageDesktop parent,int x, int y) {
         super("Choose a Label", false, true, false, false); 
         this.parent = parent;
@@ -124,9 +124,11 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 		
 		
 	}
+	
 	private void addLabel(String label) {
 		parent.addLabel(label);
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if("submit".equals(e.getActionCommand())) {
@@ -140,7 +142,6 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 				System.out.println("Fatal error");
 			}
 			dispose();
-		}
-		
+		}	
 	}
 }
