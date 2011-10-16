@@ -174,9 +174,9 @@ public class ImageLabeller extends JFrame
             quit();
         }
     }
- 
+    
     //Create a new internal frame.
-    protected void createFrame(int x,int y) {
+    protected void createFrame(int x,int y, String defaultText) {
         int offsetx = desktop.getWidth()-300-x;
         int offsety = desktop.getHeight()-y-110;
         if(offsetx < 0) {
@@ -191,7 +191,7 @@ public class ImageLabeller extends JFrame
         } else if(offsety > 490) {
         	y = y + 50;
         }
-        LabelFrame frame = new LabelFrame(desktop,x,y);
+        LabelFrame frame = new LabelFrame(desktop,x,y,defaultText);
         frame.setVisible(true);
         desktop.add(frame);
         try {

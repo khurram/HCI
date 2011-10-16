@@ -21,8 +21,9 @@ import java.beans.PropertyVetoException;
 public class LabelFrame extends JInternalFrame implements ActionListener, KeyListener, InternalFrameListener{
 	private static final long serialVersionUID = 1L;
 	private JTextField text;
+	private boolean pressed;
 	ImageDesktop parent;
-    public LabelFrame(ImageDesktop parent,int x, int y) {
+    public LabelFrame(ImageDesktop parent,int x, int y,String defaultText) {
         super("Choose a Label", false, true, false, false); 
         this.parent = parent;
         setSize(300,120);
@@ -31,6 +32,7 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
         text.setMaximumSize(new Dimension(250,30));
         text.setMinimumSize(new Dimension(250,30));
         text.addKeyListener(this);
+        text.setText(defaultText);
         addInternalFrameListener(this);
         
         JButton discard = new JButton();
@@ -51,31 +53,35 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
         main.add(submit);
         main.setLayout(new FlowLayout(FlowLayout.CENTER));
         setLocation(x, y);
+        
+        pressed = false;
     }
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
-		
-		
+	public void keyPressed(KeyEvent key) {
+		pressed = true;
 	}
 
 	@Override
 	public void keyReleased(KeyEvent key) {
-		if(key.getKeyCode() == KeyEvent.VK_ENTER) {
-			addLabel(text.getText());
-			setVisible(false);
-			dispose();
-		} else if(key.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			try {
-				setClosed(true);
-			} catch (PropertyVetoException e) {
-				e.printStackTrace();
+		if(pressed) {
+			if(key.getKeyCode() == KeyEvent.VK_ENTER) {
+				addLabel(text.getText());
+				setVisible(false);
+				dispose();
+			} else if(key.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				try {
+					setClosed(true);
+				} catch (PropertyVetoException e) {
+					e.printStackTrace();
+				}
+				dispose();
+			} else if(key.getKeyCode() == KeyEvent.VK_Z && key.isControlDown()) {
+				setVisible(false);
+				dispose();
 			}
-			dispose();
-		} else if(key.getKeyCode() == KeyEvent.VK_Z && key.isControlDown()) {
-			setVisible(false);
-			dispose();
 		}
+		pressed = false;
 	}
 
 	@Override

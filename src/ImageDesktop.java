@@ -8,6 +8,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -37,6 +38,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private BufferedImage image;
 	
+	private Stack<UndoAction> undoStack;
+	private Stack<RedoAction> redoStack;
+	
 	private int labelIncrementor = 0;
 	
 	/**
@@ -60,8 +64,50 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		add(drawings);
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		
+		undoStack = new Stack<UndoAction>();
 	}
-	
+	/**
+	 * 
+	 * Valid actions include:
+	 * 
+	 * addPointToCurrent
+	 * completePolygon
+	 *
+	 */
+	private class UndoAction {
+		private String action;
+		private int polygonId;
+		public UndoAction(String action) {
+			this.action = action;
+			polygonId = -1;
+		}
+		public UndoAction(String action,int polygonId) {
+			this.action = action;
+			this.polygonId = polygonId;
+		}
+		public String action() {
+			return action;
+		}
+		public int getId() {
+			return polygonId;
+		}
+	}
+	private class RedoAction {
+		private String action;
+		private int polygonId;
+		public RedoAction(String action) {
+			this.action = action;
+			polygonId = -1;
+		}
+		public RedoAction(String action,int polygonId) {
+			this.action = action;
+			this.polygonId = polygonId;
+		}
+		public int getId() {
+			return polygonId;
+		}
+	}
 	private static class PaintDesktopManager extends DefaultDesktopManager {  
 		private static final long serialVersionUID = 1L;
 		public void beginDraggingFrame(JComponent f)
@@ -91,33 +137,49 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void addNewPolygon() {
 		//finish the current polygon if any
 		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
-		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50);
+		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"");
 		
 		
 	}
 	public void finishNewPolygon(String label) {
 		if (currentPolygon != null ) {
 			polygonsList.put(labelIncrementor,currentPolygon);
-			parent.addLabel(label,labelIncrementor++);
+			parent.addLabel(label,labelIncrementor);
+			undoStack.push(new UndoAction("completePolygon",labelIncrementor));
+			labelIncrementor++;
 		}
+		
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
 	}
 	
 	public void undo() {
-		if(currentPolygon.size() > 1) {
-			currentPolygon.remove(currentPolygon.size()-1);
-			while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
+		UndoAction last = undoStack.pop();
+		if(last.action().equals("addPointToCurrent")) {
+			if(currentPolygon.size() > 1) {
 				currentPolygon.remove(currentPolygon.size()-1);
+				while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
+					currentPolygon.remove(currentPolygon.size()-1);
+				}
+				lastdragpoint = currentPolygon.get(currentPolygon.size()-1);
+				repaint();
+			} else if(currentPolygon.size() == 1) {
+				currentPolygon.remove(0);
+				startpoint = null;
+				lastdragpoint = null;
+				repaint();
 			}
-			lastdragpoint = currentPolygon.get(currentPolygon.size()-1);
-			repaint();
-		} else if(currentPolygon.size() == 1) {
-			currentPolygon.remove(0);
-			startpoint = null;
-			lastdragpoint = null;
-			repaint();
+		} else if(last.action().equals("completePolygon")){
+			if(polygonsList.size()>0) {
+				currentPolygon = polygonsList.get(last.getId());
+				deletePolygon(last.getId());
+				startpoint = currentPolygon.get(0);
+				lastdragpoint = null;
+				parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"defualt name");
+			}
+		} else {
+			//System.out.println
 		}
 	}
 	
@@ -243,6 +305,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	    	  //System.out.println(x1 + " " + y1);
 	      }
+	      undoStack.push(new UndoAction("addPointToCurrent"));
 		
 	}
 
@@ -284,6 +347,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			    }
 			}
 			mouseOverCheck(e);
+			undoStack.push(new UndoAction("addPointToCurrent"));
 		}
 		
 	}
