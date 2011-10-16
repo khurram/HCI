@@ -105,11 +105,12 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private class RedoAction {
 		private String action;
 		private int polygonId;
+		private ArrayList<Point> points;
 		public RedoAction(String action) {
 			this.action = action;
 			polygonId = -1;
 		}
-		public RedoAction(String action,int polygonId) {
+		public RedoAction(String action,int polygonId, ArrayList<Point> points) {
 			this.action = action;
 			this.polygonId = polygonId;
 		}
@@ -142,7 +143,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void deletePolygon(int id) {
-		System.out.println(id);
 		polygonsList.remove(new Integer(id));
 		//System.out.println(polygonsList.size());
 		repaint();
@@ -214,8 +214,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void undo() {
+		if(undoStack.empty()) {
+			return;
+		}
 		UndoAction last = undoStack.pop();
-		if(last.action().equals("addPointToCurrent")) {
+		if(last.action().equals("addPointToCurrent") && currentPolygon != null) {
 			if(currentPolygon.size() > 1) {
 				currentPolygon.remove(currentPolygon.size()-1);
 				while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
@@ -228,17 +231,25 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				startpoint = null;
 				lastdragpoint = null;
 				repaint();
+			} else {
+				undo();
 			}
 		} else if(last.action().equals("completePolygon")){
 			if(polygonsList.size()>0) {
 				currentPolygon = polygonsList.get(last.getId());
-				deletePolygon(last.getId());
-				startpoint = currentPolygon.get(0);
-				lastdragpoint = null;
-				parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"defualt name");
+				if(currentPolygon != null) {
+					polygonsList.remove(last.getId());
+					String text = parent.getLabelText(last.getId());
+					parent.deleteLabel(last.getId());
+					startpoint = currentPolygon.get(0);
+					lastdragpoint = null;
+					parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,text);
+				} else {
+					undo();
+				}
 			}
 		} else {
-			//System.out.println
+			undo();
 		}
 	}
 	

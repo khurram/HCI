@@ -18,6 +18,7 @@ import java.awt.*;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
  
 /**
  * HCI Project Phase 1
@@ -33,6 +34,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	private JPanel labelNames;
 	private JPanel deleteButtons;
     private BufferedImage image = null;
+    
+    private HashMap<Integer,PolygonLabel> labelList;
     
     public ImageLabeller(String imageFileName) throws IOException {
         super("InternalFrameDemo");
@@ -58,8 +61,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
         
         JLabel header = new JLabel();
         header.setText("<html><b>Labels:</b></html>");
-        Box box = new Box(BoxLayout.LINE_AXIS);
-        //box.add(header);
         
         rightPane = new JPanel();
         rightPane.setSize(145,image.getHeight());
@@ -91,48 +92,69 @@ public class ImageLabeller extends JFrame implements ActionListener {
         setContentPane(mainArea);
         
         setJMenuBar(createMenuBar());
+        
+        labelList = new HashMap<Integer,PolygonLabel>();
     }
     
     protected void addLabel(String text, int id) {
-    	JLabel newLabel = new JLabel();
-    	newLabel.setText(text);
-    	newLabel.setBorder(new EmptyBorder(2,2,2,2));
-    	
-    	JPanel buttonBorder = new JPanel();
-    	buttonBorder.setPreferredSize(new Dimension(20,20));
-    	buttonBorder.setMaximumSize(new Dimension(20,20));
-    	buttonBorder.setMinimumSize(new Dimension(20,20));
-    	JButton x = new JButton();
-    	x.setText("x");
-    	x.setPreferredSize(new Dimension(20,13));
-    	x.setMaximumSize(new Dimension(20,13));
-    	x.setMinimumSize(new Dimension(20,13));
-    	x.addActionListener(new DeleteListener(buttonBorder, id,newLabel,x));
-    	labelNames.add(newLabel);
-    	buttonBorder.add(x);
-    	deleteButtons.add(buttonBorder);
+    	labelList.put(id,new PolygonLabel(text,id));
     }
-    
+    protected void deleteLabel(int id) {
+    	labelList.get(id).delete();
+    }
+    protected String getLabelText(int id) {
+    	return labelList.get(id).getText();
+    }
+    private class PolygonLabel {
+    	private JLabel newLabel;
+    	private JPanel buttonBorder;
+    	private JButton x;
+    	private int id;
+    	private String labelText;
+    	public PolygonLabel(String text,int id) {
+    		this.id = id;
+    		labelText = text;
+	    	newLabel = new JLabel();
+	    	newLabel.setText(text);
+	    	newLabel.setBorder(new EmptyBorder(2,2,2,2));
+	    	
+	    	buttonBorder = new JPanel();
+	    	buttonBorder.setPreferredSize(new Dimension(20,20));
+	    	buttonBorder.setMaximumSize(new Dimension(20,20));
+	    	buttonBorder.setMinimumSize(new Dimension(20,20));
+	    	x = new JButton();
+	    	x.setText("x");
+	    	x.setPreferredSize(new Dimension(20,13));
+	    	x.setMaximumSize(new Dimension(20,13));
+	    	x.setMinimumSize(new Dimension(20,13));
+	    	x.addActionListener(new DeleteListener(this));
+	    	labelNames.add(newLabel);
+	    	buttonBorder.add(x);
+	    	deleteButtons.add(buttonBorder);
+    	}
+    	public void delete() {
+    		newLabel.setVisible(false);
+			x.setVisible(false);
+			buttonBorder.setVisible(false);
+    	}
+    	public int getPolygonId() {
+    		return id;
+    	}
+    	public String getText() {
+    		return labelText;
+    	}
+    }
     private class DeleteListener implements ActionListener{
     	
-    	private int id;
-    	private JLabel label;
-    	private JButton x;
-    	private JPanel parent;
-    	private JPanel wrapper;
-		public DeleteListener(JPanel wrapper, int id, JLabel label, JButton x) {
-			this.id = id;
-			this.label = label;
-			this.x = x;
-			this.wrapper = wrapper;
+    	private PolygonLabel self;
+		public DeleteListener(PolygonLabel self) {
+			this.self = self;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			label.setVisible(false);
-			x.setVisible(false);
-			desktop.deletePolygon(id);
-			wrapper.setVisible(false);
+			self.delete();
+			desktop.deletePolygon(self.getPolygonId());
 		}
     	
     }
@@ -200,8 +222,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } else if(offsetx > 500) {
         	x = x + 50;
         }
-        System.out.println(desktop.getHeight());
-        System.out.println(offsety);
         if(offsety < 0) {
         	y = y + offsety;
         } else if(offsety > 490) {
