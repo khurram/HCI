@@ -44,7 +44,7 @@ public class ImageLabeller extends JFrame
         int inset = 0;
    
         setBounds(inset,inset,image.getWidth()+150,
-                image.getHeight()+20);
+                image.getHeight()+50);
  
         
         mainArea = new JPanel();
@@ -177,6 +177,20 @@ public class ImageLabeller extends JFrame
  
     //Create a new internal frame.
     protected void createFrame(int x,int y) {
+        int offsetx = desktop.getWidth()-300-x;
+        int offsety = desktop.getHeight()-y-110;
+        if(offsetx < 0) {
+        	x = x + offsetx;
+        } else if(offsetx > 500) {
+        	x = x + 50;
+        }
+        System.out.println(desktop.getHeight());
+        System.out.println(offsety);
+        if(offsety < 0) {
+        	y = y + offsety;
+        } else if(offsety > 490) {
+        	y = y + 50;
+        }
         LabelFrame frame = new LabelFrame(desktop,x,y);
         frame.setVisible(true);
         desktop.add(frame);
