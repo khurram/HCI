@@ -10,6 +10,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.border.EmptyBorder;
  
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -96,16 +97,21 @@ public class ImageLabeller extends JFrame
     protected void addLabel(String text, int id) {
     	JLabel newLabel = new JLabel();
     	newLabel.setText(text);
+    	newLabel.setBorder(new EmptyBorder(2,2,2,2));
     	
+    	JPanel buttonBorder = new JPanel();
+    	buttonBorder.setPreferredSize(new Dimension(20,20));
+    	buttonBorder.setMaximumSize(new Dimension(20,20));
+    	buttonBorder.setMinimumSize(new Dimension(20,20));
     	JButton x = new JButton();
-    	x.setText("X");
-    	x.setPreferredSize(new Dimension(20,15));
-    	x.setMaximumSize(new Dimension(20,15));
-    	x.setMinimumSize(new Dimension(20,15));
-    	x.setMargin(new Insets(1, 1, 1, 1));
-    	x.addActionListener(new DeleteListener(id,newLabel,x));
+    	x.setText("x");
+    	x.setPreferredSize(new Dimension(20,13));
+    	x.setMaximumSize(new Dimension(20,13));
+    	x.setMinimumSize(new Dimension(20,13));
+    	x.addActionListener(new DeleteListener(buttonBorder, id,newLabel,x));
     	labelNames.add(newLabel);
-    	deleteButtons.add(x);
+    	buttonBorder.add(x);
+    	deleteButtons.add(buttonBorder);
 
     }
     private class DeleteListener implements ActionListener{
@@ -113,10 +119,13 @@ public class ImageLabeller extends JFrame
     	private int id;
     	private JLabel label;
     	private JButton x;
-		public DeleteListener(int id, JLabel label, JButton x) {
+    	private JPanel parent;
+    	private JPanel wrapper;
+		public DeleteListener(JPanel wrapper, int id, JLabel label, JButton x) {
 			this.id = id;
 			this.label = label;
 			this.x = x;
+			this.wrapper = wrapper;
 		}
 
 		@Override
@@ -124,6 +133,7 @@ public class ImageLabeller extends JFrame
 			label.setVisible(false);
 			x.setVisible(false);
 			desktop.deletePolygon(id);
+			wrapper.setVisible(false);
 		}
     	
     }
