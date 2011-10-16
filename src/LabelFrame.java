@@ -92,7 +92,6 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 	@Override
 	public void internalFrameActivated(InternalFrameEvent arg0) {
 
-		
 	}
 
 	@Override
@@ -104,35 +103,32 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 	public void internalFrameClosing(InternalFrameEvent arg0) {
 		//removes current polygon
 		parent.deleteCurrentPolygon();
-		
 	}
 
 	@Override
 	public void internalFrameDeactivated(InternalFrameEvent arg0) {
-		
 		
 	}
 
 	@Override
 	public void internalFrameDeiconified(InternalFrameEvent arg0) {
 		
-		
 	}
 
 	@Override
 	public void internalFrameIconified(InternalFrameEvent arg0) {
-		
 		
 	}
 
 	@Override
 	public void internalFrameOpened(InternalFrameEvent arg0) {
 		
-		
 	}
+	
 	private void addLabel(String label) {
 		parent.addLabel(label);
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if("submit".equals(e.getActionCommand())) {
@@ -147,6 +143,5 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 			}
 			dispose();
 		}
-		
 	}
 }

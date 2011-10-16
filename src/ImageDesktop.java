@@ -6,6 +6,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -22,6 +27,7 @@ import javax.swing.DefaultDesktopManager;
  * @author Sam Shelley, Khurram Aslam
  */
 public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener{
+	private static final long serialVersionUID = 1L;
 
 	private ImageLabeller parent;
 	
@@ -43,10 +49,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private int labelIncrementor = 0;
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
 		super();
 		image = readImage;
@@ -93,6 +95,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			return polygonId;
 		}
 	}
+	
 	private class RedoAction {
 		private String action;
 		private int polygonId;
@@ -108,6 +111,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			return polygonId;
 		}
 	}
+	
 	private static class PaintDesktopManager extends DefaultDesktopManager {  
 		private static final long serialVersionUID = 1L;
 		public void beginDraggingFrame(JComponent f)
@@ -118,40 +122,74 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
         {
 			f.repaint();
         }	
-    } 
+    }
+	
 	private boolean isOpenDialog() {
 		return getAllFrames().length > 0;
 	}
+	
 	public void deleteCurrentPolygon() {
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
 		repaint();
 	}
+	
 	public void deletePolygon(int id) {
 		System.out.println(id);
 		polygonsList.remove(new Integer(id));
 		//System.out.println(polygonsList.size());
 		repaint();
 	}
+	
 	public void addNewPolygon() {
 		//finish the current polygon if any
 		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
-		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"");
-		
-		
+		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"");	
 	}
+	
 	public void finishNewPolygon(String label) {
 		if (currentPolygon != null ) {
 			polygonsList.put(labelIncrementor,currentPolygon);
 			parent.addLabel(label,labelIncrementor);
 			undoStack.push(new UndoAction("completePolygon",labelIncrementor));
 			labelIncrementor++;
+			saveFile(polygonsList);
 		}
 		
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
+	}
+	
+	public void saveFile(HashMap<Integer,ArrayList<Point>> polygonsList) {
+		try {
+	        FileOutputStream fos = new FileOutputStream("datas.txt");
+	        ObjectOutputStream oos = new ObjectOutputStream(fos);
+	        System.out.println(polygonsList);
+
+	        oos.writeObject(polygonsList);
+	        oos.flush();
+	        oos.close();
+	        fos.close();
+	      } catch (IOException ex) {
+	        System.err.println("Could not write polygons");
+	      }
+	}
+
+	public void openFile(String polygonFile) {
+		try {
+	        FileInputStream fis = new FileInputStream(polygonFile);
+	        ObjectInputStream ois = new ObjectInputStream(fis);
+	        polygonsList = (HashMap<Integer,ArrayList<Point>>) (ois.readObject());
+	        ois.close();
+	        fis.close();
+	        repaint();
+	      } catch (ClassNotFoundException ex) {
+	        System.err.println("Could not load in polygons");
+	      } catch (IOException ex) {
+	        System.err.println("Could not load in polygons");
+	      }
 	}
 	
 	public void undo() {
@@ -225,6 +263,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			mouseOverCheck(e);
 		}
 	}
+	
 	@Override
 	protected void paintComponent(Graphics g)
     {
@@ -242,9 +281,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		}
 		
     }
+	
 	public void addLabel(String text) {
 		finishNewPolygon(text);
 	}
+	
 	public void mouseOverCheck(MouseEvent e) {
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		for(int i=0;i<currentPolygon.size();i++) {
@@ -264,6 +305,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void mouseClicked(MouseEvent arg0) {
 		
 	}
+	
 	private void drawVertex(MouseEvent e) {
 		  boolean end = false;
 		  boolean dragpoint = false;
@@ -349,8 +391,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			mouseOverCheck(e);
 			undoStack.push(new UndoAction("addPointToCurrent"));
 		}
-		
 	}
 
-	
 }
