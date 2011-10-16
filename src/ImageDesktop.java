@@ -169,17 +169,26 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void saveFile(HashMap<Integer,ArrayList<Point>> polygonsList) {
-		try {
-	        FileOutputStream os = new FileOutputStream("file.xml");
-	        XMLEncoder encoder = new XMLEncoder(os);
-	        System.out.println(polygonsList);
+		fc.setCurrentDirectory(new File("."));
+		int returnVal = fc.showSaveDialog(parent);
+		
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			try {
+		        FileOutputStream os = new FileOutputStream(file);
+		        XMLEncoder encoder = new XMLEncoder(os);
+		        System.out.println(polygonsList);
 
-	        encoder.writeObject(polygonsList);
-	        encoder.close();
-	        os.close();
-	      } catch (IOException ex) {
-	        System.err.println("Could not write polygons");
-	      }
+		        encoder.writeObject(polygonsList);
+		        encoder.close();
+		        os.close();
+		      } catch (IOException ex) {
+		        System.err.println("Could not write polygons");
+		      }
+		}
+		
+		
+
 	}
 
 	public void openFile() {
