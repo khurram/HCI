@@ -137,6 +137,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		if (currentPolygon != null ) {
 			polygonsList.put(labelIncrementor,currentPolygon);
 			parent.addLabel(label,labelIncrementor++);
+			
 		}
 		startpoint = null;
   	  	lastdragpoint = null;

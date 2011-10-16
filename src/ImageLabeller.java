@@ -148,15 +148,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
         menuItem.addActionListener(this);
         fmenu.add(menuItem);
         
-        //save option
-        menuItem = new JMenuItem("Save");
-        menuItem.setMnemonic(KeyEvent.VK_S);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-        menuItem.setActionCommand("save");
-        menuItem.addActionListener(this);
-        fmenu.add(menuItem);
-        
         //undo option
         menuItem = new JMenuItem("Undo");
         menuItem.setMnemonic(KeyEvent.VK_Z);
@@ -184,8 +175,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
             desktop.undo();
         } else if ("open".equals(e.getActionCommand())) {
         	desktop.openPolygons("datas.txt");
-        } else if ("save".equals(e.getActionCommand())) {
-        	desktop.savePolygons(desktop.polygonsList);
         } else {
             quit();
         }
