@@ -23,6 +23,7 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 	private JTextField text;
 	private boolean pressed;
 	ImageDesktop parent;
+	
     public LabelFrame(ImageDesktop parent,int x, int y,String defaultText) {
         super("Choose a Label", false, true, false, false); 
         this.parent = parent;

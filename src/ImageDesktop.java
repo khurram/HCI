@@ -6,6 +6,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
@@ -48,6 +52,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Stack<RedoAction> redoStack;
 	
 	private int labelIncrementor = 0;
+	
+	final JFileChooser fc = new JFileChooser();
 	
 	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
 		super();
@@ -164,32 +170,38 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	public void saveFile(HashMap<Integer,ArrayList<Point>> polygonsList) {
 		try {
-	        FileOutputStream fos = new FileOutputStream("datas.txt");
-	        ObjectOutputStream oos = new ObjectOutputStream(fos);
+	        FileOutputStream os = new FileOutputStream("file.xml");
+	        XMLEncoder encoder = new XMLEncoder(os);
 	        System.out.println(polygonsList);
 
-	        oos.writeObject(polygonsList);
-	        oos.flush();
-	        oos.close();
-	        fos.close();
+	        encoder.writeObject(polygonsList);
+	        encoder.close();
+	        os.close();
 	      } catch (IOException ex) {
 	        System.err.println("Could not write polygons");
 	      }
 	}
 
-	public void openFile(String polygonFile) {
-		try {
-	        FileInputStream fis = new FileInputStream(polygonFile);
-	        ObjectInputStream ois = new ObjectInputStream(fis);
-	        polygonsList = (HashMap<Integer,ArrayList<Point>>) (ois.readObject());
-	        ois.close();
-	        fis.close();
-	        repaint();
-	      } catch (ClassNotFoundException ex) {
-	        System.err.println("Could not load in polygons");
-	      } catch (IOException ex) {
-	        System.err.println("Could not load in polygons");
-	      }
+	public void openFile() {
+		fc.setCurrentDirectory(new File("."));
+		int returnVal = fc.showOpenDialog(parent);
+		
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+	        File file = fc.getSelectedFile();
+
+			try {
+				FileInputStream is = new FileInputStream(file);
+				XMLDecoder decoder = new XMLDecoder(is);
+				polygonsList = (HashMap<Integer,ArrayList<Point>>) (decoder.readObject());
+		        decoder.close();
+		        is.close();
+		        
+		        repaint();
+		      } catch (IOException ex) {
+		        System.err.println("Could not load in polygons");
+		      }
+		}
+
 	}
 	
 	public void undo() {

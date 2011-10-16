@@ -185,7 +185,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         if ("undo".equals(e.getActionCommand())) {
             desktop.undo();
         } else if ("open".equals(e.getActionCommand())) {
-        	desktop.openFile("datas.txt");
+        	desktop.openFile();
         } else {
             quit();
         }
