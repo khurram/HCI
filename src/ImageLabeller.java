@@ -112,6 +112,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	private int id;
     	private String labelText;
     	public PolygonLabel(String text,int id) {
+        	System.out.println("adding Label");
     		this.id = id;
     		labelText = text;
 	    	newLabel = new JLabel();
