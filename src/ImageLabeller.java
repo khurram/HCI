@@ -136,6 +136,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	    	deleteButtons.add(buttonBorder,id);
     	}
     	public void delete() {
+    		desktop.clearRedo();
     		newLabel.setVisible(false);
 			x.setVisible(false);
 			buttonBorder.setVisible(false);
@@ -193,6 +194,15 @@ public class ImageLabeller extends JFrame implements ActionListener {
         menuItem.addActionListener(this);
         emenu.add(menuItem);
  
+        //redo option
+        menuItem = new JMenuItem("Redo");
+        menuItem.setMnemonic(KeyEvent.VK_Y);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+        menuItem.setActionCommand("redo");
+        menuItem.addActionListener(this);
+        emenu.add(menuItem);
+        
         //quit option
         menuItem = new JMenuItem("Quit");
         menuItem.setMnemonic(KeyEvent.VK_Q);
@@ -209,6 +219,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if ("undo".equals(e.getActionCommand())) {
             desktop.undo();
+        } else if ("redo".equals(e.getActionCommand())) {
+        	desktop.redo();
         } else if ("open".equals(e.getActionCommand())) {
         	desktop.openFile();
         } else {

@@ -266,6 +266,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			if(currentPolygon.size() > 1) {
 				ArrayList<Point> removedPoints = new ArrayList<Point>();
 				removedPoints.add(currentPolygon.get(currentPolygon.size()-1));
+				System.out.println(removedPoints.size());
 				currentPolygon.remove(currentPolygon.size()-1);
 				while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
 					removedPoints.add(currentPolygon.get(currentPolygon.size()-1));
@@ -295,6 +296,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					startpoint = currentPolygon.get(0);
 					lastdragpoint = null;
 					parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,text);
+					redoStack.push(new RedoAction("completePolygon",last.getId(),currentPolygon,text));
 				} else {
 					undo();
 				}
@@ -314,6 +316,48 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			repaint();
 		} else {
 			undo();
+		}
+	}
+	protected void clearRedo() {
+		redoStack = new Stack<RedoAction>();
+	}
+	protected void redo() {
+		if(redoStack.empty()) {
+			return;
+		}
+		RedoAction next = redoStack.pop();
+		System.out.println(next.action());
+		if(next.action().equals("addPointToCurrent")) {
+			if(currentPolygon == null || currentPolygon.size()<1) {
+				currentPolygon = next.getPoints();
+				startpoint = currentPolygon.get(0);
+				lastdragpoint = currentPolygon.get(currentPolygon.size()-1);
+				undoStack.push(new UndoAction("addPointToCurrent"));
+				repaint();
+			} else {
+				for(int i = next.getPoints().size()-1;i>=0;i--) {
+					currentPolygon.add(next.getPoints().get(i));
+				}
+				undoStack.push(new UndoAction("addPointToCurrent"));
+				lastdragpoint = currentPolygon.get(currentPolygon.size()-1);
+				if(startpoint == lastdragpoint) {
+					//need to peek into next redo statement to get the previously assigned text
+					if(!redoStack.empty()) {
+						parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,redoStack.peek().getLabel());
+					} else {
+						parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"");
+					}
+					
+				}
+				repaint();
+			}
+		} else if(next.action().equals("completePolygon")) {
+			for(JInternalFrame j: getAllFrames()) {
+				j.dispose();
+			}
+			addLabel(next.getLabel());
+		} else {
+			redo();
 		}
 	}
 	
@@ -401,52 +445,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void mouseClicked(MouseEvent arg0) {
 		
 	}
-	
-	private void drawVertex(MouseEvent e) {
-		  boolean end = false;
-		  boolean dragpoint = false;
-		  x1 = e.getX();
-	      y1 = e.getY();
-	      if(startpoint == null) {
-	    	  startpoint = new Point(x1,y1,8, true);
-	    	  currentPolygon.add(startpoint);
-	      } else if(startpoint.near(new Point(x1,y1,1))) {
-	    	  currentPolygon.add(startpoint);
-	    	  x1 = startpoint.getX();
-	    	  y1 = startpoint.getY();
-	    	  end = true;
-	      } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
-	    	  //we don't add another point here because you are just starting
-	    	  //another drag
-	    	  dragpoint = true;
-	      } else {
-	    	  currentPolygon.add(new Point(x1,y1,8,true));
-	      }
-	      
-			
-	      Graphics2D g = (Graphics2D)this.getGraphics();
-			
-	      //if the left button than we will add a vertex to poly
-	      if (e.getButton() == MouseEvent.BUTTON1) {
-	    	  g.setColor(Color.RED);
-	    	  if (currentPolygon.size() > 1) {
-	    		  Point lastVertex = currentPolygon.get(currentPolygon.size() - 2);
-	    		  g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-	    		  g.drawLine(lastVertex.getX(), lastVertex.getY(), x1, y1);
-	    	  }
-	    	  if(!end && !dragpoint) {
-	    		  g.fillOval(x1-7,y1-7,15,15);
-	    	  }
-	    	  if(end) {
-	    		  addNewPolygon();
-	    	  }
-
-	    	  //System.out.println(x1 + " " + y1);
-	      }
-	      undoStack.push(new UndoAction("addPointToCurrent"));
-		
-	}
-
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
@@ -463,7 +461,48 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if(!isOpenDialog()) {
-			drawVertex(e);
+			clearRedo();
+			boolean end = false;
+			boolean dragpoint = false;
+			x1 = e.getX();
+			y1 = e.getY();
+			if(startpoint == null) {
+				startpoint = new Point(x1,y1,8, true);
+		    	currentPolygon.add(startpoint);
+		    } else if(startpoint.near(new Point(x1,y1,1))) {
+		    	currentPolygon.add(startpoint);
+		    	x1 = startpoint.getX();
+		    	y1 = startpoint.getY();
+		    	end = true;
+		    } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
+		    	  //we don't add another point here because you are just starting
+		    	  //another drag
+		    	dragpoint = true;
+		    } else {
+		    	currentPolygon.add(new Point(x1,y1,8,true));
+		    }
+		      
+				
+			Graphics2D g = (Graphics2D)this.getGraphics();
+				
+		      //if the left button than we will add a vertex to poly
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				g.setColor(Color.RED);
+				if (currentPolygon.size() > 1) {
+					Point lastVertex = currentPolygon.get(currentPolygon.size() - 2);
+					g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+					g.drawLine(lastVertex.getX(), lastVertex.getY(), x1, y1);
+				}
+				if(!end && !dragpoint) {
+					g.fillOval(x1-7,y1-7,15,15);
+				}
+				if(end) {
+					addNewPolygon();
+				}
+
+		    	  //System.out.println(x1 + " " + y1);
+			}
+			undoStack.push(new UndoAction("addPointToCurrent"));
 			mouseOverCheck(e);
 		}
 	}
@@ -471,6 +510,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(!isOpenDialog()) {
+			clearRedo();
 			if(dragging) {
 				dragging = false;
 				if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
