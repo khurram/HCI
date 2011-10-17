@@ -98,6 +98,9 @@ public class ImageLabeller extends JFrame implements ActionListener {
     
     protected void addLabel(String text, int id) {
     	labelList.put(id,new PolygonLabel(text,id));
+    	Graphics g = getGraphics();
+    	if (g != null) paintComponents(g);
+    	else repaint();
     }
     protected void deleteLabel(int id) {
     	labelList.get(id).delete();
@@ -112,7 +115,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	private int id;
     	private String labelText;
     	public PolygonLabel(String text,int id) {
-        	System.out.println("adding Label");
     		this.id = id;
     		labelText = text;
 	    	newLabel = new JLabel();
@@ -129,9 +131,9 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	    	x.setMaximumSize(new Dimension(20,13));
 	    	x.setMinimumSize(new Dimension(20,13));
 	    	x.addActionListener(new DeleteListener(this));
-	    	labelNames.add(newLabel);
+	    	labelNames.add(newLabel,id);
 	    	buttonBorder.add(x);
-	    	deleteButtons.add(buttonBorder);
+	    	deleteButtons.add(buttonBorder,id);
     	}
     	public void delete() {
     		newLabel.setVisible(false);
