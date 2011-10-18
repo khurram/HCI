@@ -137,15 +137,20 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		private ArrayList<Point> points;
 		private String label;
 		
+		public RedoAction(String action) {
+			this.action = action;
+		}
 		public RedoAction(String action, ArrayList<Point> points) {
 			this.action = action;
 			this.points = points;
 		}
-		public RedoAction(String action,int polygonId, ArrayList<Point> points, String label) {
+		public RedoAction(String action, int polygonId) {
 			this.action = action;
 			this.polygonId = polygonId;
+		}
+		public RedoAction(String action, String label) {
+			this.action = action;
 			this.label = label;
-			this.points = points;
 		}
 		public String action() {
 			return action;
@@ -266,7 +271,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			if(currentPolygon.size() > 1) {
 				ArrayList<Point> removedPoints = new ArrayList<Point>();
 				removedPoints.add(currentPolygon.get(currentPolygon.size()-1));
-				System.out.println(removedPoints.size());
 				currentPolygon.remove(currentPolygon.size()-1);
 				while(!currentPolygon.get(currentPolygon.size()-1).isPrimary()) {
 					removedPoints.add(currentPolygon.get(currentPolygon.size()-1));
@@ -296,7 +300,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					startpoint = currentPolygon.get(0);
 					lastdragpoint = null;
 					parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,text);
-					redoStack.push(new RedoAction("completePolygon",last.getId(),currentPolygon,text));
+					redoStack.push(new RedoAction("completePolygon",text));
 				} else {
 					undo();
 				}
@@ -306,6 +310,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			startpoint = currentPolygon.get(0);
 			lastdragpoint = null;
 			addNewPolygon();
+			redoStack.push(new RedoAction("deleteCurrentPolygon"));
 			repaint();
 		} else if(last.action().equals("deleteSavedPolygon")){
 			ArrayList<Point> tempPoly = last.getPoints();
@@ -313,6 +318,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				polygonsList.put(last.getId(),tempPoly);
 				parent.addLabel(last.getLabel(),last.getId());
 			}
+			redoStack.push(new RedoAction("deleteSavedPolygon",last.getId()));
 			repaint();
 		} else {
 			undo();
@@ -326,7 +332,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			return;
 		}
 		RedoAction next = redoStack.pop();
-		System.out.println(next.action());
 		if(next.action().equals("addPointToCurrent")) {
 			if(currentPolygon == null || currentPolygon.size()<1) {
 				currentPolygon = next.getPoints();
@@ -356,6 +361,16 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				j.dispose();
 			}
 			addLabel(next.getLabel());
+		} else if(next.action().equals("deleteCurrentPolygon")) {
+			for(JInternalFrame j: getAllFrames()) {
+				j.dispose();
+			}
+			deleteCurrentPolygon();
+			repaint();
+		} else if(next.action().equals("deleteSavedPolygon")) {
+			deletePolygon(next.getId());
+			parent.deleteLabel(next.getId());
+			repaint();
 		} else {
 			redo();
 		}

@@ -136,7 +136,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	    	deleteButtons.add(buttonBorder,id);
     	}
     	public void delete() {
-    		desktop.clearRedo();
     		newLabel.setVisible(false);
 			x.setVisible(false);
 			buttonBorder.setVisible(false);
@@ -159,6 +158,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			self.delete();
 			desktop.deletePolygon(self.getPolygonId());
+			desktop.clearRedo();
 		}
     	
     }
