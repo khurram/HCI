@@ -53,6 +53,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private int labelIncrementor = 0;
 	
+	private boolean pressed;
+	
 	final JFileChooser fc = new JFileChooser();
 	
 	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
@@ -75,6 +77,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		undoStack = new Stack<UndoAction>();
 		redoStack = new Stack<RedoAction>();
+		
+		pressed = false;
 	}
 	/**
 	 * 
@@ -84,6 +88,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	 * completePolygon
 	 * deleteCurrentPolygon
 	 * deleteSavedPolygon
+	 * editLabel
 	 *
 	 */
 	private class UndoAction {
@@ -98,6 +103,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		public UndoAction(String action,int polygonId) {
 			this.action = action;
 			this.polygonId = polygonId;
+		}
+		public UndoAction(String action,String label, int id) {
+			this.action = action;
+			this.label = label;
+			this.polygonId = id;
 		}
 		public UndoAction(String action,ArrayList<Point> points) {
 			this.action = action;
@@ -152,6 +162,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			this.action = action;
 			this.label = label;
 		}
+		public RedoAction(String action,String label, int id) {
+			this.action = action;
+			this.label = label;
+			this.polygonId = id;
+		}
 		public String action() {
 			return action;
 		}
@@ -193,7 +208,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void deletePolygon(int id) {
 		undoStack.push(new UndoAction("deleteSavedPolygon",polygonsList.get(id),parent.getLabelText(id),id));
 		polygonsList.remove(id);
-		//System.out.println(polygonsList.size());
+		System.out.println(polygonsList.size());
 		repaint();
 	}
 	
@@ -263,7 +278,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void undo() {
-		if(undoStack.empty()) {
+		if(pressed || undoStack.empty()) {
 			return;
 		}
 		UndoAction last = undoStack.pop();
@@ -277,6 +292,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					currentPolygon.remove(currentPolygon.size()-1);
 				}
 				lastdragpoint = currentPolygon.get(currentPolygon.size()-1);
+				for(JInternalFrame j: getAllFrames()) {
+					j.dispose();
+				}
 				redoStack.push(new RedoAction("addPointToCurrent",removedPoints));
 				repaint();
 			} else if(currentPolygon.size() == 1) {
@@ -300,7 +318,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					startpoint = currentPolygon.get(0);
 					lastdragpoint = null;
 					parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,text);
-					redoStack.push(new RedoAction("completePolygon",text));
+					redoStack.push(new RedoAction("completePolygon",text,last.getId()));
 				} else {
 					undo();
 				}
@@ -314,21 +332,29 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			repaint();
 		} else if(last.action().equals("deleteSavedPolygon")){
 			ArrayList<Point> tempPoly = last.getPoints();
+			System.out.println("OMG");
 			if (tempPoly != null ) {
 				polygonsList.put(last.getId(),tempPoly);
 				parent.addLabel(last.getLabel(),last.getId());
 			}
 			redoStack.push(new RedoAction("deleteSavedPolygon",last.getId()));
 			repaint();
+		} else if(last.action().equals("editLabel")){
+			redoStack.push(new RedoAction("editLabel",parent.getLabelText(last.getId()),last.getId()));
+			parent.updateLabel(last.getId(),last.getLabel(),false);
 		} else {
 			undo();
 		}
+	}
+	protected void pushEditUndo(int id, String label) {
+		System.out.println("CALLED");
+		undoStack.push(new UndoAction("editLabel",label, id));
 	}
 	protected void clearRedo() {
 		redoStack = new Stack<RedoAction>();
 	}
 	protected void redo() {
-		if(redoStack.empty()) {
+		if(pressed || redoStack.empty()) {
 			return;
 		}
 		RedoAction next = redoStack.pop();
@@ -360,7 +386,15 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			for(JInternalFrame j: getAllFrames()) {
 				j.dispose();
 			}
-			addLabel(next.getLabel());
+			if (currentPolygon != null ) {
+				polygonsList.put(next.getId(),currentPolygon);
+				parent.addLabel(next.getLabel(),next.getId());
+				undoStack.push(new UndoAction("completePolygon",next.getId()));
+			}
+			
+			startpoint = null;
+	  	  	lastdragpoint = null;
+			currentPolygon = new ArrayList<Point>();
 		} else if(next.action().equals("deleteCurrentPolygon")) {
 			for(JInternalFrame j: getAllFrames()) {
 				j.dispose();
@@ -371,11 +405,17 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			deletePolygon(next.getId());
 			parent.deleteLabel(next.getId());
 			repaint();
+		} else if(next.action().equals("editLabel")) {
+			System.out.println(next.getId());
+			undoStack.push(new UndoAction("editLabel",parent.getLabelText(next.getId()),next.getId()));
+			parent.updateLabel(next.getId(),next.getLabel(),false);
 		} else {
 			redo();
 		}
 	}
-	
+	public Point getStartPoint(int id) {
+		return polygonsList.get(id).get(0);
+	}
 	@Override
 	public void mouseDragged( MouseEvent e ) {
 		if(!isOpenDialog()) {
@@ -396,19 +436,33 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		}
 	}
 	
-	public void drawPolygon(ArrayList<Point> polygon) {
+	public void drawPolygon(ArrayList<Point> polygon, boolean current) {
 		Graphics2D g = (Graphics2D)this.getGraphics();
-		g.setColor(Color.RED);
+		boolean first = false;
 		g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		for(int i = 0; i < polygon.size(); i++) {
 			Point currentVertex = polygon.get(i);
 			if (i != 0) {
 				Point prevVertex = polygon.get(i - 1);
+				g.setColor(Color.RED);
 				g.drawLine(prevVertex.getX(), prevVertex.getY(), currentVertex.getX(), currentVertex.getY());
 			}
 			if(currentVertex.isPrimary()) {
-				g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
+				if (i != 0) {
+					first = true;
+					g.setColor(Color.RED);
+					g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
+				}
 			}
+		}
+		if(first) {
+			Point currentVertex = polygon.get(0);
+			if(current) {
+				g.setColor(Color.GREEN);
+			} else {
+				g.setColor(Color.RED);
+			}
+			g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
 		}
 	}
 	
@@ -424,11 +478,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
     {
         g.drawImage(image, 0, 0, null);
         for(ArrayList<Point> polygon : polygonsList.values()) {
-			drawPolygon(polygon);
+			drawPolygon(polygon,false);
 		}
 		
 		//display current polygon
-		drawPolygon(currentPolygon);
+		drawPolygon(currentPolygon,true);
 		
 		//repaint the frames to make sure they overlap
 		for(JInternalFrame f : this.getAllFrames()) {
@@ -449,7 +503,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					g.setColor(Color.WHITE);
 					g.fillOval(currentPolygon.get(i).getX()-7,currentPolygon.get(i).getY()-7,15,15);
 				} else {
-					g.setColor(Color.RED);
+					if(i==0) {
+						g.setColor(Color.GREEN);
+					} else {
+						g.setColor(Color.RED);
+					}
 					g.fillOval(currentPolygon.get(i).getX()-7,currentPolygon.get(i).getY()-7,15,15);
 				}
 			}
@@ -457,8 +515,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		
+	public void mouseClicked(MouseEvent e) {
 	}
 
 	@Override
@@ -475,6 +532,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		pressed = true;
 		if(!isOpenDialog()) {
 			clearRedo();
 			boolean end = false;
@@ -524,7 +582,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if(!isOpenDialog()) {
+		if(pressed && !isOpenDialog()) {
+			pressed = false;
 			clearRedo();
 			if(dragging) {
 				dragging = false;

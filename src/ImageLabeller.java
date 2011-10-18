@@ -9,6 +9,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
  
@@ -102,6 +104,17 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	if (g != null) paintComponents(g);
     	else repaint();
     }
+    protected void updateLabel(int id, String text,boolean push) {
+    	if(push) {
+    		desktop.pushEditUndo(id,labelList.get(id).getText());
+    	}
+    	deleteLabel(id);
+    	labelList.put(id,new PolygonLabel(text,id));
+    	Graphics g = getGraphics();
+    	if (g != null) paintComponents(g);
+    	else repaint();
+    	
+    }
     protected void deleteLabel(int id) {
     	labelList.get(id).delete();
     }
@@ -109,22 +122,36 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	return labelList.get(id).getText();
     }
     private class PolygonLabel {
-    	private JLabel newLabel;
+    	private EditableJLabel newLabel;
+    	private String text;
     	private JPanel buttonBorder;
+    	private boolean over;
     	private JButton x;
     	private int id;
-    	private String labelText;
-    	public PolygonLabel(String text,int id) {
+    	public PolygonLabel(String text,final int id) {
+    		over = false;
     		this.id = id;
-    		labelText = text;
-	    	newLabel = new JLabel();
-	    	newLabel.setText(text);
+    		this.text = text;
+	    	newLabel = new EditableJLabel(text);
+	    	//newLabel.setText(text);
+	    	newLabel.setPreferredSize(new Dimension(105,25));
+            newLabel.setMaximumSize(new Dimension(105,25));
+            newLabel.setMinimumSize(new Dimension(105,25));
 	    	newLabel.setBorder(new EmptyBorder(2,2,2,2));
+	    	ValueChangedListener valueListener = new ValueChangedListener() {
+				@Override
+				public void valueChanged(String value, JComponent source) {
+					updateLabel(id,value,true);
+					requestFocusInWindow();
+					desktop.clearRedo();
+				}
+			};
+	    	newLabel.addValueChangedListener(valueListener);
 	    	
 	    	buttonBorder = new JPanel();
-	    	buttonBorder.setPreferredSize(new Dimension(20,20));
-	    	buttonBorder.setMaximumSize(new Dimension(20,20));
-	    	buttonBorder.setMinimumSize(new Dimension(20,20));
+	    	buttonBorder.setPreferredSize(new Dimension(20,25));
+	    	buttonBorder.setMaximumSize(new Dimension(20,25));
+	    	buttonBorder.setMinimumSize(new Dimension(20,25));
 	    	x = new JButton();
 	    	x.setText("x");
 	    	x.setPreferredSize(new Dimension(20,13));
@@ -144,7 +171,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     		return id;
     	}
     	public String getText() {
-    		return labelText;
+    		return text;
     	}
     }
     private class DeleteListener implements ActionListener{

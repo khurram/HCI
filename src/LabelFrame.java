@@ -55,39 +55,31 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
         main.setLayout(new FlowLayout(FlowLayout.CENTER));
         setLocation(x, y);
         
-        pressed = false;
     }
 
 	@Override
 	public void keyPressed(KeyEvent key) {
-		pressed = true;
 	}
 
 	@Override
 	public void keyReleased(KeyEvent key) {
-		if(pressed) {
-			if(key.getKeyCode() == KeyEvent.VK_ENTER) {
-				addLabel(text.getText());
-				setVisible(false);
-				dispose();
-			} else if(key.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				try {
-					setClosed(true);
-				} catch (PropertyVetoException e) {
-					e.printStackTrace();
-				}
-				dispose();
-			} else if(key.getKeyCode() == KeyEvent.VK_Z && key.isControlDown()) {
-				setVisible(false);
-				dispose();
-			}
-		}
-		pressed = false;
 	}
 
 	@Override
 	public void keyTyped(KeyEvent key) {
-		
+		if(key.getKeyChar() == KeyEvent.VK_ENTER) {
+			addLabel(text.getText());
+			setVisible(false);
+			dispose();
+		} else if(key.getKeyChar() == KeyEvent.VK_ESCAPE) {
+			try {
+				setClosed(true);
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
+			dispose();
+		}
+
 	}
 
 	@Override
