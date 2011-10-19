@@ -1,7 +1,10 @@
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -54,6 +57,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private int labelIncrementor = 0;
 	
 	private boolean pressed;
+	
+	private ArrayList<Point> mousedOver = null;
+	private Polygon mousedPolygon = null;
 	
 	final JFileChooser fc = new JFileChooser();
 	
@@ -188,7 +194,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			f.repaint();
         }	
     }
-	
+	protected void mouseOverPolygon(boolean over, int id) {
+		if(over) {
+			mousedOver = polygonsList.get(id);
+		} else {
+			mousedOver = null;
+		}
+		repaint();
+	}
 	private boolean isOpenDialog() {
 		return getAllFrames().length > 0;
 	}
@@ -480,7 +493,22 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
         for(ArrayList<Point> polygon : polygonsList.values()) {
 			drawPolygon(polygon,false);
 		}
-		
+          
+        mousedPolygon = new Polygon();
+        if(mousedOver != null) {
+        	
+			for(int i = 0;i<mousedOver.size();i++) {
+				Point p = mousedOver.get(i);
+				mousedPolygon.addPoint(p.getX()+1,p.getY()+1);
+			}
+			Graphics2D g2 = (Graphics2D)g;
+			g2.setColor(Color.red);
+			Composite defaultC = g2.getComposite();
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.2f));
+			g2.fillPolygon(mousedPolygon);
+			g2.setComposite(defaultC);
+        }
+        
 		//display current polygon
 		drawPolygon(currentPolygon,true);
 		

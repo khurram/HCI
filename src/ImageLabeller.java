@@ -144,6 +144,15 @@ public class ImageLabeller extends JFrame implements ActionListener {
 					desktop.clearRedo();
 				}
 			};
+			MouseOverListener mouseListener = new MouseOverListener() {
+				public void mouseEntered() {
+					desktop.mouseOverPolygon(true,id);
+				}
+				public void mouseExited() {
+					desktop.mouseOverPolygon(false,id);
+				}
+			};
+			newLabel.addMouseOverListener(mouseListener);
 	    	newLabel.addValueChangedListener(valueListener);
 	    	
 	    	buttonBorder = new JPanel();
@@ -164,6 +173,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     		newLabel.setVisible(false);
 			x.setVisible(false);
 			buttonBorder.setVisible(false);
+			desktop.mouseOverPolygon(false,id);
     	}
     	public int getPolygonId() {
     		return id;

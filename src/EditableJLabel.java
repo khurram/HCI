@@ -17,7 +17,9 @@ import javax.swing.JTextField;
 /**
  * Create a JPanel with a CardLayout which switches to another JPanel on hover
  * 
- * @author James McMinn
+ * @author James McMinn (https://github.com/JamesMcMinn/EditableJLabel)
+ * 
+ * Modified by Sam Shelley and Khurram Asalam for HCI
  * 
  */
 public class EditableJLabel extends JPanel {
@@ -27,6 +29,7 @@ public class EditableJLabel extends JPanel {
 	private JTextField textField;
 	private String text;
 	private LinkedList<ValueChangedListener> listeners = new LinkedList<ValueChangedListener>();
+	private LinkedList<MouseOverListener> mouselisteners = new LinkedList<MouseOverListener>();
 
 	/**
 	 * Create the new panel
@@ -129,6 +132,9 @@ public class EditableJLabel extends JPanel {
 	public void addValueChangedListener(ValueChangedListener l) {
 		this.listeners.add(l);
 	}
+	public void addMouseOverListener(MouseOverListener l) {
+		this.mouselisteners.add(l);
+	}
 
 	/**
 	 * Listen for nearly everything happening
@@ -161,6 +167,9 @@ public class EditableJLabel extends JPanel {
 		public void mouseEntered(MouseEvent e) {
 			label.setForeground(Color.blue);
 			label.setText("<html><u>"+text+"</u></html>");
+			for (MouseOverListener v : mouselisteners) {
+				v.mouseEntered();
+			}
 			
 		}
 
@@ -175,6 +184,9 @@ public class EditableJLabel extends JPanel {
 			}
 			label.setForeground(Color.black);
 			label.setText(text);
+			for (MouseOverListener v : mouselisteners) {
+				v.mouseExited();
+			}
 		}
 
 		/**
@@ -246,4 +258,9 @@ public class EditableJLabel extends JPanel {
  */
 interface ValueChangedListener {
 	public void valueChanged(String value, JComponent source);
+}
+
+interface MouseOverListener {
+	public void mouseEntered();
+	public void mouseExited();
 }
