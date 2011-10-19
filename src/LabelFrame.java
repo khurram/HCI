@@ -21,7 +21,6 @@ import java.beans.PropertyVetoException;
 public class LabelFrame extends JInternalFrame implements ActionListener, KeyListener, InternalFrameListener{
 	private static final long serialVersionUID = 1L;
 	private JTextField text;
-	private boolean pressed;
 	ImageDesktop parent;
 	
     public LabelFrame(ImageDesktop parent,int x, int y,String defaultText) {

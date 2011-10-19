@@ -158,10 +158,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			this.action = action;
 			this.polygonId = polygonId;
 		}
-		public RedoAction(String action, String label) {
-			this.action = action;
-			this.label = label;
-		}
 		public RedoAction(String action,String label, int id) {
 			this.action = action;
 			this.label = label;
@@ -208,7 +204,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void deletePolygon(int id) {
 		undoStack.push(new UndoAction("deleteSavedPolygon",polygonsList.get(id),parent.getLabelText(id),id));
 		polygonsList.remove(id);
-		System.out.println(polygonsList.size());
 		repaint();
 	}
 	
@@ -449,10 +444,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			}
 			if(currentVertex.isPrimary()) {
 				if (i != 0) {
-					first = true;
 					g.setColor(Color.RED);
+					
+				} else {
+					first = true;
+					g.setColor(Color.GREEN);
 					g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
 				}
+				g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
 			}
 		}
 		if(first) {
@@ -463,6 +462,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				g.setColor(Color.RED);
 			}
 			g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
+			
 		}
 	}
 	
@@ -583,7 +583,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(pressed && !isOpenDialog()) {
-			pressed = false;
 			clearRedo();
 			if(dragging) {
 				dragging = false;
@@ -601,6 +600,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			mouseOverCheck(e);
 			undoStack.push(new UndoAction("addPointToCurrent"));
 		}
+		pressed = false;
 	}
 
 }

@@ -1,4 +1,3 @@
-
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -10,7 +9,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JComponent;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
  

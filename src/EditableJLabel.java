@@ -1,7 +1,6 @@
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -14,8 +13,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
 /**
  * Create a JPanel with a CardLayout which switches to another JPanel on hover
