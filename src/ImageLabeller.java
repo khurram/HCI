@@ -259,7 +259,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } else if ("open".equals(e.getActionCommand())) {
         	desktop.openFile();
         } else {
-            quit();
+        	 System.exit(0);
         }
     }
     
@@ -284,13 +284,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
             frame.setSelected(true);
         } catch (PropertyVetoException e) {}
     }
- 
-    //Quit the application.
-    protected void quit() {
-        System.exit(0);
-    }
- 
-    private static void setUpGUI(String imageFileName) {
+
+    private static void setupGUI(String imageFileName) {
         JFrame.setDefaultLookAndFeelDecorated(true);
  
         //Create and set up the window.
@@ -304,15 +299,12 @@ public class ImageLabeller extends JFrame implements ActionListener {
         	System.out.println("fail");
         }
        
-       
     }
  
     public static void main(String[] args) {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                setUpGUI("images/test.jpg");
+                setupGUI("images/test.jpg");
             }
         });
     }

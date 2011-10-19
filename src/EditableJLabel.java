@@ -19,7 +19,7 @@ import javax.swing.JTextField;
  * 
  * @author James McMinn (https://github.com/JamesMcMinn/EditableJLabel)
  * 
- * Modified by Sam Shelley and Khurram Asalam for HCI
+ * Modified by Sam Shelley and Khurram Aslam for HCI
  * 
  */
 public class EditableJLabel extends JPanel {
