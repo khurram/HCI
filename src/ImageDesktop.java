@@ -296,7 +296,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
  	public static void openImage() {
-		fc.setCurrentDirectory(new File("."));
+		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
