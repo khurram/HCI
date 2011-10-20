@@ -302,6 +302,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 	        File file = fc.getSelectedFile();
 	        System.out.println(file);
+	        parent.setVisible(false);
 	        ImageLabeller.setupGUI(file);
 	        openLabel(file.getName() + ".xml");
 		} 

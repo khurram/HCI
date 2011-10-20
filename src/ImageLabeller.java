@@ -304,9 +304,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
         	System.out.println("fail");
         }
         
-        ImageDesktop.openLabel(file.getName() + ".xml");
-
-        
         
     }
  
@@ -315,7 +312,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                File initialImage = new File("images/test.jpg");
+                File initialImage = new File("images/initial.jpg");
             	setupGUI(initialImage);
             }
         });
