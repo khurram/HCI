@@ -22,6 +22,7 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 	private static final long serialVersionUID = 1L;
 	private JTextField text;
 	ImageDesktop parent;
+	private boolean pressed = false;
 	
     public LabelFrame(ImageDesktop parent,int x, int y,String defaultText) {
         super("Choose a Label", false, true, false, false); 
@@ -56,29 +57,27 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
         
     }
 
-	@Override
-	public void keyPressed(KeyEvent key) {
+    public void keyPressed(KeyEvent key) {
+		pressed = true;
 	}
 
 	@Override
 	public void keyReleased(KeyEvent key) {
-	}
-
-	@Override
-	public void keyTyped(KeyEvent key) {
-		if(key.getKeyChar() == KeyEvent.VK_ENTER) {
-			addLabel(text.getText());
-			setVisible(false);
-			dispose();
-		} else if(key.getKeyChar() == KeyEvent.VK_ESCAPE) {
-			try {
-				setClosed(true);
-			} catch (PropertyVetoException e) {
-				e.printStackTrace();
+		if(pressed) {
+			if(key.getKeyCode() == KeyEvent.VK_ENTER) {
+				addLabel(text.getText());
+				setVisible(false);
+				dispose();
+			} else if(key.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				try {
+					setClosed(true);
+				} catch (PropertyVetoException e) {
+					e.printStackTrace();
+				}
+				dispose();
 			}
-			dispose();
 		}
-
+		pressed = false;
 	}
 
 	@Override
@@ -135,5 +134,11 @@ public class LabelFrame extends JInternalFrame implements ActionListener, KeyLis
 			}
 			dispose();
 		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

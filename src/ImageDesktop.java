@@ -25,6 +25,7 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
 
@@ -58,6 +59,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private boolean pressed;
 	
+	private Tutorial tutorial;
+	
 	private ArrayList<Point> mousedOver = null;
 	private Polygon mousedPolygon = null;
 	
@@ -85,6 +88,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		redoStack = new Stack<RedoAction>();
 		
 		pressed = false;
+		
+		runTutorial();
 	}
 	/**
 	 * 
@@ -187,11 +192,16 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		private static final long serialVersionUID = 1L;
 		public void beginDraggingFrame(JComponent f)
         {
-			f.repaint();
+			f.paintComponents(f.getGraphics());
         }	
+		public void dragFrame(JComponent f, int newX, int newY)
+        {
+            if (!"tutorial".equals(f.getClientProperty("type")))
+                super.dragFrame(f, newX, newY);
+        }
 		public void endDraggingFrame(JComponent f)
         {
-			f.repaint();
+			f.paintComponents(f.getGraphics());
         }	
     }
 	protected void mouseOverPolygon(boolean over, int id) {
@@ -355,7 +365,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		}
 	}
 	protected void pushEditUndo(int id, String label) {
-		System.out.println("CALLED");
 		undoStack.push(new UndoAction("editLabel",label, id));
 	}
 	protected void clearRedo() {
@@ -525,21 +534,25 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	public void mouseOverCheck(MouseEvent e) {
 		Graphics2D g = (Graphics2D) this.getGraphics();
-		for(int i=0;i<currentPolygon.size();i++) {
-			if(currentPolygon.get(i).isPrimary()) {
-				if(currentPolygon.get(i).near(new Point(e.getX(),e.getY(),1))) {
+			if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
+				g.setColor(Color.WHITE);
+				g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
+			} else if(startpoint != null) {
+				g.setColor(Color.GREEN);
+				g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
+				
+				if(lastdragpoint != null && lastdragpoint.near(new Point(e.getX(),e.getY(),1))) {
 					g.setColor(Color.WHITE);
-					g.fillOval(currentPolygon.get(i).getX()-7,currentPolygon.get(i).getY()-7,15,15);
+					g.fillOval(lastdragpoint.getX()-7,lastdragpoint.getY()-7,15,15);
 				} else {
-					if(i==0) {
-						g.setColor(Color.GREEN);
-					} else {
+					if(lastdragpoint != null && lastdragpoint != startpoint) {
 						g.setColor(Color.RED);
+						g.fillOval(lastdragpoint.getX()-7,lastdragpoint.getY()-7,15,15);
 					}
-					g.fillOval(currentPolygon.get(i).getX()-7,currentPolygon.get(i).getY()-7,15,15);
 				}
 			}
-		}
+			
+		
 	}
 
 	@Override
@@ -569,18 +582,22 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			y1 = e.getY();
 			if(startpoint == null) {
 				startpoint = new Point(x1,y1,8, true);
+				lastdragpoint = startpoint;
 		    	currentPolygon.add(startpoint);
+		    } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
+		    	  //we don't add another point here because you are just starting
+		    	  //another drag
+		    	System.out.println("hiya");
+		    	dragpoint = true;
+		    	return;
 		    } else if(startpoint.near(new Point(x1,y1,1))) {
 		    	currentPolygon.add(startpoint);
 		    	x1 = startpoint.getX();
 		    	y1 = startpoint.getY();
 		    	end = true;
-		    } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
-		    	  //we don't add another point here because you are just starting
-		    	  //another drag
-		    	dragpoint = true;
 		    } else {
-		    	currentPolygon.add(new Point(x1,y1,8,true));
+		    	lastdragpoint = new Point(x1,y1,8,true);
+		    	currentPolygon.add(lastdragpoint);
 		    }
 		      
 				
@@ -629,6 +646,15 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			undoStack.push(new UndoAction("addPointToCurrent"));
 		}
 		pressed = false;
+	}
+	
+	private void runTutorial() {
+		try {
+			tutorial = new Tutorial(this);
+		} catch (IOException e) {
+			
+		}
+		
 	}
 
 }
