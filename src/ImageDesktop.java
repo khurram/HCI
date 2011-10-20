@@ -26,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
 
@@ -48,7 +49,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point lastdragpoint = null;
 	
 	private ArrayList<Point> currentPolygon = null;
-	private HashMap<Integer,ArrayList<Point>> polygonsList = null;
+	private static HashMap<Integer,ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
 	
@@ -57,7 +58,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Stack<UndoAction> undoStack;
 	private Stack<RedoAction> redoStack;
 	
-	private int labelIncrementor = 0;
+	private static int labelIncrementor = 0;
 	
 	private boolean pressed;
 	private boolean mouseoverS = false;
@@ -235,7 +236,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
   	  	undoStack.push(new UndoAction("deleteCurrentPolygon",currentPolygon));
 		currentPolygon = new ArrayList<Point>();
 		repaint();
-		saveLabel();
 	}
 	
 	public void deletePolygon(int id) {
@@ -272,11 +272,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		currentPolygon = new ArrayList<Point>();
 	}
 
-	public void saveLabel(File imageFile) {
-		String imageName = imageFile.getName();
+	public void saveLabel() {
+		String currentImageLabels = ImageLabeller.imageFilename + ".xml";
 		
 		try {
-			FileOutputStream os = new FileOutputStream("test.xml");
+			FileOutputStream os = new FileOutputStream(currentImageLabels);
 			XMLEncoder encoder = new XMLEncoder(os);
 		    
 		    HashMap<Integer, String> stringSet = new HashMap();
@@ -303,17 +303,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	        File file = fc.getSelectedFile();
 	        System.out.println(file);
 	        ImageLabeller.setupGUI(file);
+	        openLabel(file.getName() + ".xml");
 		} 
-	}	
-	public void openLabel() {
-		fc.setCurrentDirectory(new File("."));
-		int returnVal = fc.showOpenDialog(parent);
-		
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-	        File file = fc.getSelectedFile();
+	}
+ 	
+	public static void openLabel(String imageLabelFile) {
 
 	        try {
-				FileInputStream is = new FileInputStream(file);
+				FileInputStream is = new FileInputStream(imageLabelFile);
 				XMLDecoder decoder = new XMLDecoder(is);
 				
 				HashMap readMap = (HashMap) decoder.readObject();
@@ -330,11 +327,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				decoder.close();
 		        is.close();
 		        
-		        repaint();
 		    } catch (IOException ex) {
 		    	System.err.println("Could not load in polygons");
 		    }
-		}
+		
 
 	}
 	

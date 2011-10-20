@@ -36,13 +36,15 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	private JPanel labelNames;
 	private JPanel deleteButtons;
     private BufferedImage image = null;
+    public static String imageFilename;
     
     static HashMap<Integer,PolygonLabel> labelList;
 	final static JFileChooser fc = new JFileChooser();
 
     public ImageLabeller(File file) throws IOException {
-        super("InternalFrameDemo");
+    	super("InternalFrameDemo");
         image = ImageIO.read(file);
+        imageFilename = file.getName();
 		
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
@@ -122,22 +124,13 @@ public class ImageLabeller extends JFrame implements ActionListener {
     protected static String getLabelText(int id) {
     	return labelList.get(id).getText();
     }
-<<<<<<< HEAD
-    private class PolygonLabel {
-    	private EditableJLabel newLabel;
-    	private String text;
-    	private JPanel buttonBorder;
-    	private JButton x;
-    	private int id;
-=======
-    public class PolygonLabel implements Serializable {
+
+    public class PolygonLabel {
     	public EditableJLabel newLabel;
     	public String text;
     	public JPanel buttonBorder;
-    	public boolean over;
     	public JButton x;
     	public int id;
->>>>>>> committing broken code "just in case"
     	public PolygonLabel(String text,final int id) {
     		this.id = id;
     		this.text = text;
@@ -310,6 +303,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } catch (Exception e) {
         	System.out.println("fail");
         }
+        
+        ImageDesktop.openLabel(file.getName() + ".xml");
 
         
         
