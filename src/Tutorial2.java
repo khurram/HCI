@@ -1,32 +1,19 @@
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 public class Tutorial2{
-	private ImageDesktop parent;
 	private JPanel inner;
 	private int step = 1;
 	private JInternalFrame frame;
 	public Tutorial2(ImageDesktop parent) throws IOException {
-		this.parent = parent;
 		frame = new JInternalFrame("Tips", false, true, false, false);
 		frame.putClientProperty("type", "tutorial");
 		frame.setSize(250,150);

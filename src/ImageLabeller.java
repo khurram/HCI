@@ -123,11 +123,9 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	private EditableJLabel newLabel;
     	private String text;
     	private JPanel buttonBorder;
-    	private boolean over;
     	private JButton x;
     	private int id;
     	public PolygonLabel(String text,final int id) {
-    		over = false;
     		this.id = id;
     		this.text = text;
 	    	newLabel = new EditableJLabel(text);
