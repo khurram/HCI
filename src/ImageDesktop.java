@@ -49,7 +49,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point lastdragpoint = null;
 	
 	private ArrayList<Point> currentPolygon = null;
-	private static HashMap<Integer,ArrayList<Point>> polygonsList = null;
+	static HashMap<Integer,ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
 	
@@ -296,6 +296,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
  	public static void openImage() {
+ 		labelIncrementor = 0;
+ 		ImageLabeller.labelList = null;
+ 		
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
 		
@@ -303,6 +306,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	        File file = fc.getSelectedFile();
 	        System.out.println(file);
 	        parent.setVisible(false);
+	        parent.dispose();
 	        ImageLabeller.setupGUI(file);
 	        openLabel(file.getName() + ".xml");
 		} 
@@ -329,7 +333,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		        is.close();
 		        
 		    } catch (IOException ex) {
-		    	System.err.println("Could not load in polygons");
+		    	System.err.println("No existing polygons to load");
 		    }
 		
 

@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
  
 /**
@@ -292,7 +293,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
 
      public static void setupGUI(File file) {
         JFrame.setDefaultLookAndFeelDecorated(true);
- 
+    	ImageDesktop.polygonsList = null;
+
         //Create and set up the window.
         try {
 	        ImageLabeller frame = new ImageLabeller(file);
@@ -303,10 +305,8 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } catch (Exception e) {
         	System.out.println("fail");
         }
-        
-        
+           
     }
- 
 
 
     public static void main(String[] args) {
