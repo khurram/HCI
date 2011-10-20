@@ -350,7 +350,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			repaint();
 		} else if(last.action().equals("deleteSavedPolygon")){
 			ArrayList<Point> tempPoly = last.getPoints();
-			System.out.println("OMG");
 			if (tempPoly != null ) {
 				polygonsList.put(last.getId(),tempPoly);
 				parent.addLabel(last.getLabel(),last.getId());
@@ -587,7 +586,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		    } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
 		    	  //we don't add another point here because you are just starting
 		    	  //another drag
-		    	System.out.println("hiya");
 		    	dragpoint = true;
 		    	return;
 		    } else if(startpoint.near(new Point(x1,y1,1))) {
