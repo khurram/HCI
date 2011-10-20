@@ -19,6 +19,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -28,6 +29,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
 
+import com.sun.tools.javac.code.Attribute.Array;
+
 /**
  * HCI Project Phase 1
  * 
@@ -36,7 +39,7 @@ import javax.swing.DefaultDesktopManager;
 public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMotionListener{
 	private static final long serialVersionUID = 1L;
 
-	private ImageLabeller parent;
+	private static ImageLabeller parent;
 	
 	private int x1,x2,y1,y2;
 	private boolean dragging;
@@ -65,7 +68,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private ArrayList<Point> mousedOver = null;
 	private Polygon mousedPolygon = null;
 	
-	final JFileChooser fc = new JFileChooser();
+	final static JFileChooser fc = new JFileChooser();
 	
 	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
 		super();
@@ -232,6 +235,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
   	  	undoStack.push(new UndoAction("deleteCurrentPolygon",currentPolygon));
 		currentPolygon = new ArrayList<Point>();
 		repaint();
+		saveLabel();
 	}
 	
 	public void deletePolygon(int id) {
@@ -255,8 +259,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			polygonsList.put(labelIncrementor,currentPolygon);
 			parent.addLabel(label,labelIncrementor);
 			undoStack.push(new UndoAction("completePolygon",labelIncrementor));
+			
+			saveLabel();
 			labelIncrementor++;
-			//saveFile(polygonsList);
+
 		}
 		if(tutorial.getStep() == 4) {
 			tutorial.next();
@@ -265,48 +271,69 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
 	}
+
+	public void saveLabel(File imageFile) {
+		String imageName = imageFile.getName();
+		
+		try {
+			FileOutputStream os = new FileOutputStream("test.xml");
+			XMLEncoder encoder = new XMLEncoder(os);
+		    
+		    HashMap<Integer, String> stringSet = new HashMap();
+
+		    for (int i=0; i<=labelIncrementor; i++){
+		    	stringSet.put(i,(ImageLabeller.labelList.get(i).getText()));
+		    }
+		    
+	    	encoder.writeObject(stringSet);
+	    	encoder.writeObject(polygonsList);
+		    
+		    encoder.close();
+		    os.close();
+		    } catch (IOException ex) {
+		    System.err.println("Could not write polygons");
+	    }
+	}
 	
-	public void saveFile(HashMap<Integer,ArrayList<Point>> polygonsList) {
+ 	public static void openImage() {
 		fc.setCurrentDirectory(new File("."));
-		int returnVal = fc.showSaveDialog(parent);
+		int returnVal = fc.showOpenDialog(parent);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			try {
-		        FileOutputStream os = new FileOutputStream(file);
-		        XMLEncoder encoder = new XMLEncoder(os);
-		        System.out.println(polygonsList);
-
-		        encoder.writeObject(polygonsList);
-		        encoder.close();
-		        os.close();
-		      } catch (IOException ex) {
-		        System.err.println("Could not write polygons");
-		      }
-		}
-		
-		
-
-	}
-
-	public void openFile() {
+	        File file = fc.getSelectedFile();
+	        System.out.println(file);
+	        ImageLabeller.setupGUI(file);
+		} 
+	}	
+	public void openLabel() {
 		fc.setCurrentDirectory(new File("."));
 		int returnVal = fc.showOpenDialog(parent);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 	        File file = fc.getSelectedFile();
 
-			try {
+	        try {
 				FileInputStream is = new FileInputStream(file);
 				XMLDecoder decoder = new XMLDecoder(is);
-				polygonsList = (HashMap<Integer,ArrayList<Point>>) (decoder.readObject());
-		        decoder.close();
+				
+				HashMap readMap = (HashMap) decoder.readObject();
+				
+				for (Object key : readMap.keySet()) {
+					String value = (String) readMap.get(key);
+					int keyid = Integer.parseInt(key.toString());
+					parent.addLabel(value, keyid);
+					labelIncrementor++;
+				}
+				
+				polygonsList = (HashMap<Integer, ArrayList<Point>>) decoder.readObject();
+		        
+				decoder.close();
 		        is.close();
 		        
 		        repaint();
-		      } catch (IOException ex) {
-		        System.err.println("Could not load in polygons");
-		      }
+		    } catch (IOException ex) {
+		    	System.err.println("Could not load in polygons");
+		    }
 		}
 
 	}

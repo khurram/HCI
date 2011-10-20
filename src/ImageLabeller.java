@@ -2,6 +2,7 @@ import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -18,6 +19,7 @@ import java.awt.*;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
  
 /**
@@ -35,11 +37,12 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	private JPanel deleteButtons;
     private BufferedImage image = null;
     
-    private HashMap<Integer,PolygonLabel> labelList;
-    
-    public ImageLabeller(String imageFileName) throws IOException {
+    static HashMap<Integer,PolygonLabel> labelList;
+	final static JFileChooser fc = new JFileChooser();
+
+    public ImageLabeller(File file) throws IOException {
         super("InternalFrameDemo");
-        image = ImageIO.read(new File(imageFileName));
+        image = ImageIO.read(file);
 		
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
@@ -116,15 +119,25 @@ public class ImageLabeller extends JFrame implements ActionListener {
     protected void deleteLabel(int id) {
     	labelList.get(id).delete();
     }
-    protected String getLabelText(int id) {
+    protected static String getLabelText(int id) {
     	return labelList.get(id).getText();
     }
+<<<<<<< HEAD
     private class PolygonLabel {
     	private EditableJLabel newLabel;
     	private String text;
     	private JPanel buttonBorder;
     	private JButton x;
     	private int id;
+=======
+    public class PolygonLabel implements Serializable {
+    	public EditableJLabel newLabel;
+    	public String text;
+    	public JPanel buttonBorder;
+    	public boolean over;
+    	public JButton x;
+    	public int id;
+>>>>>>> committing broken code "just in case"
     	public PolygonLabel(String text,final int id) {
     		this.id = id;
     		this.text = text;
@@ -255,7 +268,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } else if ("redo".equals(e.getActionCommand())) {
         	desktop.redo();
         } else if ("open".equals(e.getActionCommand())) {
-        	desktop.openFile();
+        	desktop.openImage();
         } else {
         	 System.exit(0);
         }
@@ -284,12 +297,12 @@ public class ImageLabeller extends JFrame implements ActionListener {
         desktop.resetMouseover();
     }
 
-    private static void setupGUI(String imageFileName) {
+     public static void setupGUI(File file) {
         JFrame.setDefaultLookAndFeelDecorated(true);
  
         //Create and set up the window.
         try {
-	        ImageLabeller frame = new ImageLabeller(imageFileName);
+	        ImageLabeller frame = new ImageLabeller(file);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        
 	        //Display the window.
@@ -297,13 +310,18 @@ public class ImageLabeller extends JFrame implements ActionListener {
         } catch (Exception e) {
         	System.out.println("fail");
         }
-       
+
+        
+        
     }
  
+
+
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                setupGUI("images/test.jpg");
+                File initialImage = new File("images/test.jpg");
+            	setupGUI(initialImage);
             }
         });
     }
