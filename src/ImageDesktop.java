@@ -243,6 +243,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		polygonsList.remove(id);
 		parent.deleteLabel(id);
 		labelIncrementor--;
+		labelIncrementor--;
 		repaint();
 
 		saveLabel();
@@ -284,9 +285,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			XMLEncoder encoder = new XMLEncoder(os);
 		    
 		    HashMap<Integer, String> stringSet = new HashMap();
-
+		    System.out.println(labelIncrementor);
 		    for (int i=0; i<=labelIncrementor; i++){
 		    	stringSet.put(i,(ImageLabeller.labelList.get(i).getText()));
+		    	System.out.println(parent.labelList.get(i).getText());
 		    }
 		    
 	    	encoder.writeObject(stringSet);

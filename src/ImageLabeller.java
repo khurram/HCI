@@ -121,6 +121,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     }
     public void deleteLabel(int id) {
     	labelList.get(id).delete();
+    	labelList.remove(id);
     }
     protected static String getLabelText(int id) {
     	return labelList.get(id).getText();
