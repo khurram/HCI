@@ -241,7 +241,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void deletePolygon(int id) {
 		undoStack.push(new UndoAction("deleteSavedPolygon",polygonsList.get(id),parent.getLabelText(id),id));
 		polygonsList.remove(id);
+		parent.deleteLabel(id);
+		labelIncrementor--;
 		repaint();
+
+		saveLabel();
 	}
 	
 	public void addNewPolygon() {
@@ -272,7 +276,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		currentPolygon = new ArrayList<Point>();
 	}
 
-	public void saveLabel() {
+	public static void saveLabel() {
 		String currentImageLabels = ImageLabeller.imageFilename + ".xml";
 		
 		try {
@@ -297,14 +301,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
  	public static void openImage() {
  		labelIncrementor = 0;
- 		ImageLabeller.labelList = null;
+ 		parent.labelList = null;
  		
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 	        File file = fc.getSelectedFile();
-	        System.out.println(file);
 	        parent.setVisible(false);
 	        parent.dispose();
 	        ImageLabeller.setupGUI(file);

@@ -39,7 +39,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     private BufferedImage image = null;
     public static String imageFilename;
     
-    static HashMap<Integer,PolygonLabel> labelList;
+    public static HashMap<Integer,PolygonLabel> labelList;
 	final static JFileChooser fc = new JFileChooser();
 
     public ImageLabeller(File file) throws IOException {
@@ -119,7 +119,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	else repaint();
     	
     }
-    protected void deleteLabel(int id) {
+    public void deleteLabel(int id) {
     	labelList.get(id).delete();
     }
     protected static String getLabelText(int id) {
