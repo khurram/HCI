@@ -23,6 +23,11 @@ public class Point implements Serializable {
 		this.x = x;
 		this.y = y;
 	}
+	public Point(double x, double y, int radius) {
+		this.x = (int)x;
+		this.y = (int)y;
+		this.radius = radius;
+	}
 	
 	public Point(int x, int y, int radius) {
 		this.x = x;

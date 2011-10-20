@@ -283,6 +283,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         try {
             frame.setSelected(true);
         } catch (PropertyVetoException e) {}
+        desktop.resetMouseover();
     }
 
     private static void setupGUI(String imageFileName) {

@@ -58,8 +58,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private int labelIncrementor = 0;
 	
 	private boolean pressed;
+	private boolean mouseoverS = false;
+	private boolean mouseoverL = false;
 	
-	private Tutorial tutorial;
+	private Tutorial2 tutorial;
 	
 	private ArrayList<Point> mousedOver = null;
 	private Polygon mousedPolygon = null;
@@ -192,7 +194,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		private static final long serialVersionUID = 1L;
 		public void beginDraggingFrame(JComponent f)
         {
-			f.paintComponents(f.getGraphics());
+			f.repaint();
         }	
 		public void dragFrame(JComponent f, int newX, int newY)
         {
@@ -201,7 +203,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
         }
 		public void endDraggingFrame(JComponent f)
         {
-			f.paintComponents(f.getGraphics());
+			f.repaint();
         }	
     }
 	protected void mouseOverPolygon(boolean over, int id) {
@@ -213,7 +215,16 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		repaint();
 	}
 	private boolean isOpenDialog() {
-		return getAllFrames().length > 0;
+		if(getAllFrames().length > 0) {
+			for(JInternalFrame f : getAllFrames()) {
+				 if (!"tutorial".equals(f.getClientProperty("type"))) {
+					 return true;
+				 }
+			}
+			return false;
+		} else {
+			return false;
+		}
 	}
 	
 	public void deleteCurrentPolygon() {
@@ -235,6 +246,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		//REMEMBER TO ADD CHECK FOR EDGE OF SCREEN LATER
 		parent.createFrame(startpoint.getX()-50,startpoint.getY()-50,"");	
 	}
+	public void resetMouseover() {
+		mouseoverS = false;
+		mouseoverL = false;
+	}
 	
 	public void finishNewPolygon(String label) {
 		if (currentPolygon != null ) {
@@ -244,7 +259,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			labelIncrementor++;
 			//saveFile(polygonsList);
 		}
-		
+		if(tutorial.getStep() == 4) {
+			tutorial.next();
+		}
 		startpoint = null;
   	  	lastdragpoint = null;
 		currentPolygon = new ArrayList<Point>();
@@ -467,22 +484,40 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				if (i != 0) {
 					g.setColor(Color.RED);
 					
+				} else if(i==polygon.size()-1) {
+					if(!mouseoverL) {
+						g.setColor(Color.RED);
+					} else {
+						g.setColor(Color.WHITE);
+					}
 				} else {
-					first = true;
-					g.setColor(Color.GREEN);
-					g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
+					if(!mouseoverS) {
+						g.setColor(Color.GREEN);
+					} else {
+						g.setColor(Color.WHITE);
+					}
 				}
 				g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
 			}
 		}
-		if(first) {
-			Point currentVertex = polygon.get(0);
-			if(current) {
+		if(startpoint != null) {
+			if(current && mouseoverS) {
+				g.setColor(Color.WHITE);
+			} else if(current) {
 				g.setColor(Color.GREEN);
 			} else {
 				g.setColor(Color.RED);
 			}
-			g.fillOval(currentVertex.getX() - 7, currentVertex.getY() - 7, 15, 15);
+			g.fillOval(startpoint.getX() - 7, startpoint.getY() - 7, 15, 15);
+			if(lastdragpoint != null && lastdragpoint != startpoint && current) {
+				if(mouseoverL) {
+					g.setColor(Color.WHITE);
+				} else  {
+					g.setColor(Color.RED);
+				}
+				g.fillOval(lastdragpoint.getX() - 7, lastdragpoint.getY() - 7, 15, 15);
+			}
+			
 			
 		}
 	}
@@ -532,26 +567,19 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void mouseOverCheck(MouseEvent e) {
-		Graphics2D g = (Graphics2D) this.getGraphics();
 			if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
-				g.setColor(Color.WHITE);
-				g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
+				mouseoverS = true;
 			} else if(startpoint != null) {
-				g.setColor(Color.GREEN);
-				g.fillOval(startpoint.getX()-7,startpoint.getY()-7,15,15);
-				
+				mouseoverS = false;
 				if(lastdragpoint != null && lastdragpoint.near(new Point(e.getX(),e.getY(),1))) {
-					g.setColor(Color.WHITE);
-					g.fillOval(lastdragpoint.getX()-7,lastdragpoint.getY()-7,15,15);
+					mouseoverL = true;
 				} else {
 					if(lastdragpoint != null && lastdragpoint != startpoint) {
-						g.setColor(Color.RED);
-						g.fillOval(lastdragpoint.getX()-7,lastdragpoint.getY()-7,15,15);
+						mouseoverL = false;
 					}
 				}
 			}
-			
-		
+			repaint();
 	}
 
 	@Override
@@ -574,7 +602,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public void mousePressed(MouseEvent e) {
 		pressed = true;
 		if(!isOpenDialog()) {
-			clearRedo();
+			if(tutorial.getStep() == 1 || tutorial.getStep() == 3 || tutorial.getStep() == 5) {
+				tutorial.next();
+			}
 			boolean end = false;
 			boolean dragpoint = false;
 			x1 = e.getX();
@@ -633,6 +663,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			    	  currentPolygon.add(startpoint);
 			    	  addNewPolygon();
 			    } else {
+			    	if(tutorial.getStep() == 2) {
+						tutorial.next();
+					}
 			    	Graphics2D g = (Graphics2D)this.getGraphics();
 			    	lastdragpoint = new Point(e.getX(),e.getY(),8,true);
 			    	currentPolygon.add(lastdragpoint);
@@ -648,7 +681,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	private void runTutorial() {
 		try {
-			tutorial = new Tutorial(this);
+			tutorial = new Tutorial2(this);
 		} catch (IOException e) {
 			
 		}
