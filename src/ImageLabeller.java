@@ -39,7 +39,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     private BufferedImage image = null;
     public static String imageFilename;
     
-    public static HashMap<Integer,PolygonLabel> labelList;
+    public HashMap<Integer,PolygonLabel> labelList;
 	final static JFileChooser fc = new JFileChooser();
 
     public ImageLabeller(File file) throws IOException {
@@ -117,14 +117,14 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	Graphics g = getGraphics();
     	if (g != null) paintComponents(g);
     	else repaint();
-    	ImageDesktop.saveLabel();
+    	desktop.saveLabel();
     	
     }
     public void deleteLabel(int id) {
     	labelList.get(id).delete();
     	labelList.remove(id);
     }
-    protected static String getLabelText(int id) {
+    protected String getLabelText(int id) {
     	return labelList.get(id).getText();
     }
 
@@ -295,7 +295,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
 
      public static void setupGUI(File file) {
         JFrame.setDefaultLookAndFeelDecorated(true);
-    	ImageDesktop.polygonsList = null;
 
         //Create and set up the window.
         try {
