@@ -19,6 +19,10 @@ public class Point implements Serializable {
 
 	}
 	
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
+	}
+	
 	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
