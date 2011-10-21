@@ -96,11 +96,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		String xmlName = ImageLabeller.imageFilename + ".xml";
 		
-		if (labelsExist(xmlName)) {
-			System.out.println("labels exist");
-		} else {
+		//if (labelsExist(xmlName)) {
+		//	System.out.println("labels exist");
+		//} else {
 			runTutorial();
-		}
+		//}
 	}
 	/**
 	 * 
@@ -320,14 +320,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public static void resetState() {
 		parent.labelList = null;
 		labelIncrementor = 0;
-		//polygonsList = null;
-		//currentPolygon = null;
-		//undoStack = null;
-		//redoStack = null;
+		currentPolygon = new ArrayList<Point>();
+		polygonsList = new HashMap<Integer,ArrayList<Point>>();
+		undoStack = new Stack<UndoAction>();
+		redoStack = new Stack<RedoAction>();
 	}
 	
  	public static void openImage() {
- 		resetState();
  		
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
