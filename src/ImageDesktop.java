@@ -94,9 +94,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		pressed = false;
 		
-		String xmlName = ImageLabeller.imageFilename + ".xml";
-		
-		//if (labelsExist(xmlName)) {
+		//if (labelsExist()) {
 		//	System.out.println("labels exist");
 		//} else {
 			runTutorial();
@@ -281,8 +279,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		currentPolygon = new ArrayList<Point>();
 	}
 
-	public boolean labelsExist(String filename) {
-		File file = new File(filename);
+	public boolean labelsExist() {
+		String xmlName = ImageLabeller.imageFilename + ".xml";
+
+		File file = new File(xmlName);
 		boolean exists = file.exists();
 		if (exists) {
 			return true;
