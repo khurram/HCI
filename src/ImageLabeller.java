@@ -117,7 +117,6 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	Graphics g = getGraphics();
     	if (g != null) paintComponents(g);
     	else repaint();
-    	ImageDesktop.saveLabel();
     	
     }
     public void deleteLabel(int id) {
