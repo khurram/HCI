@@ -291,7 +291,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			clearRedo();
 			
 			labelIncrementor++;
-			saveLabel();
 			
 			startpoint = null;
 	  	  	lastdragpoint = null;
@@ -356,6 +355,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		keys.addAll(parent.labelList.keySet());
 		for(Integer i : keys) {
 			parent.deleteLabel(i);
+		}
+		for(JInternalFrame f : getAllFrames()) {
+			f.dispose();
 		}
 		labelIncrementor = 0;
 		startpoint = null;
@@ -482,6 +484,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				} else {
 					undo();
 				}
+				saveLabel();
 			}
 		} else if(last.action().equals("deleteCurrentPolygon")){
 			currentPolygon = last.getPoints();
@@ -489,6 +492,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			lastdragpoint = null;
 			addNewPolygon();
 			redoStack.push(new RedoAction("deleteCurrentPolygon"));
+			saveLabel();
 			repaint();
 		} else if(last.action().equals("deleteSavedPolygon")){
 			ArrayList<Point> tempPoly = last.getPoints();

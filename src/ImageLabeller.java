@@ -110,6 +110,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     
     protected void addLabel(String text, int id) {
     	labelList.put(id,new PolygonLabel(text,id));
+    	desktop.saveLabel();
     	Graphics g = getGraphics();
     	if (g != null) paintComponents(g);
     	else repaint();
