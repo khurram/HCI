@@ -263,8 +263,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			parent.addLabel(label,labelIncrementor);
 			undoStack.push(new UndoAction("completePolygon",labelIncrementor));
 			
-			saveLabel();
 			labelIncrementor++;
+			saveLabel();
 
 		}
 		if(tutorial.getStep() == 4) {
@@ -285,7 +285,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		    HashMap<Integer, String> stringSet = new HashMap();
 		    System.out.println(labelIncrementor);
 		    System.out.println(parent.labelList.size());
-		    for (int i=0; i<parent.labelList.size(); i++){
+		    for (Integer i : parent.labelList.keySet()) {
 		    	stringSet.put(i,(ImageLabeller.labelList.get(i).getText()));
 		    	System.out.println(parent.labelList.get(i).getText());
 		    }
@@ -301,8 +301,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
  	public static void openImage() {
- 		labelIncrementor = 0;
- 		parent.labelList = null;
  		
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
@@ -331,6 +329,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					labelIncrementor++;
 				}
 				
+				System.out.println(labelIncrementor);
 				polygonsList = (HashMap<Integer, ArrayList<Point>>) decoder.readObject();
 		        
 				decoder.close();
