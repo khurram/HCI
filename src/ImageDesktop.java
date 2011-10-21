@@ -48,17 +48,17 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point startpoint = null;
 	private Point lastdragpoint = null;
 	
-	private static ArrayList<Point> currentPolygon = null;
+	public static ArrayList<Point> currentPolygon = null;
 	static HashMap<Integer,ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
 	
 	private BufferedImage image;
 	
-	private static Stack<UndoAction> undoStack;
-	private static Stack<RedoAction> redoStack;
+	public static Stack<UndoAction> undoStack;
+	public static Stack<RedoAction> redoStack;
 	
-	private static int labelIncrementor = 0;
+	public static int labelIncrementor = 0;
 	
 	private boolean pressed;
 	private boolean mouseoverS = false;
@@ -94,7 +94,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		pressed = false;
 		
-		runTutorial();
+		String xmlName = ImageLabeller.imageFilename + ".xml";
+		
+		if (labelsExist(xmlName)) {
+			System.out.println("labels exist");
+		} else {
+			runTutorial();
+		}
 	}
 	/**
 	 * 
@@ -275,6 +281,17 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		currentPolygon = new ArrayList<Point>();
 	}
 
+	public boolean labelsExist(String filename) {
+		File file = new File(filename);
+		boolean exists = file.exists();
+		if (exists) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
 	public static void saveLabel() {
 		String currentImageLabels = ImageLabeller.imageFilename + ".xml";
 		
@@ -303,10 +320,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public static void resetState() {
 		parent.labelList = null;
 		labelIncrementor = 0;
-		polygonsList = null;
-		currentPolygon = null;
-		undoStack = null;
-		redoStack = null;
+		//polygonsList = null;
+		//currentPolygon = null;
+		//undoStack = null;
+		//redoStack = null;
 	}
 	
  	public static void openImage() {
@@ -325,31 +342,28 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
  	
 	public static void openLabel(String imageLabelFile) {
+		try {
+			FileInputStream is = new FileInputStream(imageLabelFile);
+			XMLDecoder decoder = new XMLDecoder(is);
+				
+			HashMap readMap = (HashMap) decoder.readObject();
+				
+			for (Object key : readMap.keySet()) {
+				String value = (String) readMap.get(key);
+				int keyid = Integer.parseInt(key.toString());
+				parent.addLabel(value, keyid);
+				labelIncrementor++;
+			}
 
-		
-	        try {
-				FileInputStream is = new FileInputStream(imageLabelFile);
-				XMLDecoder decoder = new XMLDecoder(is);
-				
-				HashMap readMap = (HashMap) decoder.readObject();
-				
-				for (Object key : readMap.keySet()) {
-					String value = (String) readMap.get(key);
-					int keyid = Integer.parseInt(key.toString());
-					parent.addLabel(value, keyid);
-					labelIncrementor++;
-				}
-				
-				System.out.println(labelIncrementor);
-				polygonsList = (HashMap<Integer, ArrayList<Point>>) decoder.readObject();
+			System.out.println(labelIncrementor);
+			polygonsList = (HashMap<Integer, ArrayList<Point>>) decoder.readObject();
 		        
-				decoder.close();
-		        is.close();
+			decoder.close();
+		    is.close();
 		        
-		    } catch (IOException ex) {
-		    	System.err.println("No existing polygons to load");
-		    }
-		
+		} catch (IOException ex) {
+			System.err.println("No existing polygons to load");
+		}
 
 	}
 	
