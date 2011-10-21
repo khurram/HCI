@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -74,6 +75,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public ImageDesktop(BufferedImage readImage, ImageLabeller parent) {
 		super();
 		image = readImage;
+		scaleImage();
 		tutorial = new Tutorial2(this);
 		setDesktopManager(new PaintDesktopManager());  
 		
@@ -101,6 +103,17 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
  		fc.setAcceptAllFileFilterUsed(false);
  		//openImage();
+	}
+	
+	public void scaleImage() {
+		if (image.getWidth() > 800 || image.getHeight() > 600) {
+			int newWidth = image.getWidth() > 800 ? 800 : (image.getWidth() * 600)/image.getHeight();
+			int newHeight = image.getHeight() > 600 ? 600 : (image.getHeight() * 800)/image.getWidth();
+			//System.out.println("SCALING TO " + newWidth + "x" + newHeight );
+			Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_FAST);
+			image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+			image.getGraphics().drawImage(scaledImage, 0, 0, this);
+		}
 	}
 	/**
 	 * 
@@ -391,6 +404,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			} catch (IOException e) {
 				System.out.println("invalid image");
 			}
+			scaleImage();
 			resetState();
 	        openLabel("data/"+file.getName() + ".xml");
 		}
