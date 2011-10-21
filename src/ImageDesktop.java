@@ -31,6 +31,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.sun.tools.javac.code.Attribute.Array;
 
@@ -96,12 +97,20 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		pressed = false;
 		
-		openLabel(ImageLabeller.imageFilename+ ".xml");
+		//openLabel(ImageLabeller.imageFilename+ ".xml");
 		//if (labelsExist()) {
 		//	System.out.println("labels exist");
 		//} else {
 			runTutorial();
 		//}
+		String[] ext = new String[5];
+ 		ext[0] = "jpeg";
+ 		ext[1] = "jpg";
+ 		ext[2] = "gif";
+ 		ext[3] = "png";
+ 		ext[4] = "tiff";
+ 		fc.setFileFilter(new FileNameExtensionFilter("Images",ext));
+ 		fc.setAcceptAllFileFilterUsed(false);
 	}
 	/**
 	 * 
@@ -251,12 +260,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		startpoint = null;
   	  	lastdragpoint = null;
   	  	undoStack.push(new UndoAction("deleteCurrentPolygon",currentPolygon));
+  	  	checkUndoRedo();
 		currentPolygon = new ArrayList<Point>();
 		repaint();
 	}
 	
 	public void deletePolygon(int id) {
 		undoStack.push(new UndoAction("deleteSavedPolygon",polygonsList.get(id),parent.getLabelText(id),id));
+		checkUndoRedo();
 		polygonsList.remove(id);
 		parent.deleteLabel(id);
 		repaint();
@@ -281,6 +292,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			System.out.println("ince"+labelIncrementor);
 			parent.addLabel(label,labelIncrementor);
 			undoStack.push(new UndoAction("completePolygon",labelIncrementor));
+			checkUndoRedo();
 			
 			labelIncrementor++;
 			saveLabel();
@@ -349,6 +361,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		polygonsList = new HashMap<Integer,ArrayList<Point>>();
 		undoStack = new Stack<UndoAction>();
 		redoStack = new Stack<RedoAction>();
+		checkUndoRedo();
 		repaint();
 	}
 	
@@ -382,7 +395,9 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				String value = (String) readMap.get(key);
 				int keyid = Integer.parseInt(key.toString());
 				System.out.println("Loaded Label:"+value);
-				parent.addLabel(value, keyid);
+				int i = 0;
+				parent.addLabel(value, i);
+				i++;
 				if(keyid >= labelIncrementor) {
 					labelIncrementor = keyid + 1;
 				}
@@ -398,7 +413,18 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		}
 
 	}
-	
+	public void checkUndoRedo() {
+		if(undoStack.empty()) {
+			parent.undo.setEnabled(false);
+		} else {
+			parent.undo.setEnabled(true);
+		}
+		if(redoStack.empty()) {
+			parent.redo.setEnabled(false);
+		} else {
+			parent.redo.setEnabled(true);
+		}
+	}
 	public void undo() {
 		if(pressed || undoStack.empty()) {
 			return;
@@ -443,6 +469,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					redoStack.push(new RedoAction("completePolygon",text,last.getId()));
 				} else {
 					undo();
+					System.out.println("HUGE PROBLEM");
 				}
 			}
 		} else if(last.action().equals("deleteCurrentPolygon")){
@@ -465,10 +492,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			parent.updateLabel(last.getId(),last.getLabel(),false);
 		} else {
 			undo();
+			System.out.println("HUGE PROBLEM");
 		}
+		checkUndoRedo();
 	}
 	protected void pushEditUndo(int id, String label) {
 		undoStack.push(new UndoAction("editLabel",label, id));
+		checkUndoRedo();
 	}
 	protected void clearRedo() {
 		redoStack = new Stack<RedoAction>();
@@ -531,6 +561,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		} else {
 			redo();
 		}
+		checkUndoRedo();
 	}
 	public Point getStartPoint(int id) {
 		return polygonsList.get(id).get(0);
@@ -686,16 +717,16 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				startpoint = new Point(x1,y1,8, true);
 				lastdragpoint = startpoint;
 		    	currentPolygon.add(startpoint);
+		    } else if(startpoint.near(new Point(x1,y1,1)) && startpoint != lastdragpoint) {
+		    	currentPolygon.add(startpoint);
+		    	x1 = startpoint.getX();
+		    	y1 = startpoint.getY();
+		    	end = true;
 		    } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
 		    	  //we don't add another point here because you are just starting
 		    	  //another drag
 		    	dragpoint = true;
 		    	return;
-		    } else if(startpoint.near(new Point(x1,y1,1))) {
-		    	currentPolygon.add(startpoint);
-		    	x1 = startpoint.getX();
-		    	y1 = startpoint.getY();
-		    	end = true;
 		    } else {
 		    	lastdragpoint = new Point(x1,y1,8,true);
 		    	currentPolygon.add(lastdragpoint);
@@ -709,6 +740,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 		    	  //System.out.println(x1 + " " + y1);
 			undoStack.push(new UndoAction("addPointToCurrent"));
+			checkUndoRedo();
 			mouseOverCheck(e);
 		}
 	}
@@ -732,6 +764,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			}
 			mouseOverCheck(e);
 			undoStack.push(new UndoAction("addPointToCurrent"));
+			checkUndoRedo();
 		}
 		pressed = false;
 	}

@@ -36,11 +36,12 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	private JPanel rightPane;
 	private JPanel labelNames;
 	private JPanel deleteButtons;
+	public JMenuItem undo;
+	public JMenuItem redo;
     private BufferedImage image = null;
     public static String imageFilename;
     
     public HashMap<Integer,PolygonLabel> labelList;
-	final static JFileChooser fc = new JFileChooser();
 
     public ImageLabeller(File file) throws IOException {
     	super("InternalFrameDemo");
@@ -228,22 +229,24 @@ public class ImageLabeller extends JFrame implements ActionListener {
         fmenu.add(menuItem);
         
         //undo option
-        menuItem = new JMenuItem("Undo");
-        menuItem.setMnemonic(KeyEvent.VK_Z);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+        undo = new JMenuItem("Undo");
+        undo.setMnemonic(KeyEvent.VK_Z);
+        undo.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
-        menuItem.setActionCommand("undo");
-        menuItem.addActionListener(this);
-        emenu.add(menuItem);
+        undo.setActionCommand("undo");
+        undo.addActionListener(this);
+        undo.setEnabled(false);
+        emenu.add(undo);
  
         //redo option
-        menuItem = new JMenuItem("Redo");
-        menuItem.setMnemonic(KeyEvent.VK_Y);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+        redo = new JMenuItem("Redo");
+        redo.setMnemonic(KeyEvent.VK_Y);
+        redo.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
-        menuItem.setActionCommand("redo");
-        menuItem.addActionListener(this);
-        emenu.add(menuItem);
+        redo.setActionCommand("redo");
+        redo.addActionListener(this);
+        redo.setEnabled(false);
+        emenu.add(redo);
         
         //quit option
         menuItem = new JMenuItem("Quit");
