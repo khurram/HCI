@@ -166,7 +166,7 @@ public class EditableJLabel extends JPanel {
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			label.setForeground(Color.blue);
-			label.setText("<html><u>"+text+"</u></html>");
+			//label.setText("<html><u>"+text+"</u></html>");
 			for (MouseOverListener v : mouselisteners) {
 				v.mouseEntered();
 			}

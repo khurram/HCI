@@ -2,7 +2,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.io.IOException;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -16,7 +15,7 @@ public class Tutorial2{
 	public Tutorial2(ImageDesktop parent) {
 		frame = new JInternalFrame("Tips", false, true, false, false);
 		frame.putClientProperty("type", "tutorial");
-		frame.setSize(250,150);
+		frame.setSize(300,200);
 		frame.setLocation(10,10);
         frame.setVisible(false);
         
@@ -34,8 +33,7 @@ public class Tutorial2{
 		JPanel pane1 = new JPanel();
 		pane1.setBackground(Color.yellow);
 		pane1.setLayout(new BorderLayout());
-		JLabel text = new JLabel("<html><b>Welcome to the ImageLabeller!</b><br><br>Click anywhere on the image to start drawing." +
-				"<br><br>Click \"Next\" to begin.</html>");
+		JLabel text = new JLabel("<html><b>Welcome to the ImageLabeller!</b><br><br>Click anywhere on the image to start drawing.</html>");
 		text.setFont(new Font(text.getFont().getFamily(),text.getFont().getStyle(),14));
 		pane1.add(text,BorderLayout.PAGE_START);
 		

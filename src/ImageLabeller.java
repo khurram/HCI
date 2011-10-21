@@ -2,7 +2,6 @@ import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -19,8 +18,6 @@ import java.awt.*;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
  
 /**
@@ -44,7 +41,14 @@ public class ImageLabeller extends JFrame implements ActionListener {
     public HashMap<Integer,PolygonLabel> labelList;
 
     public ImageLabeller(File file) throws IOException {
-    	super("InternalFrameDemo");
+    	super("Image Labeller by Sam Shelley and Khurram Aslam");
+    	
+    	File dir = new File("data");
+		if (!dir.exists())
+		{
+		    dir.mkdir();
+		}
+    	
         image = ImageIO.read(file);
         imageFilename = file.getName();
 		
@@ -52,7 +56,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         //of the screen.
         int inset = 0;
    
-        setBounds(inset,inset,image.getWidth()+150,
+        setBounds(inset,inset,image.getWidth()+170,
                 image.getHeight()+50);
  
         
@@ -66,34 +70,34 @@ public class ImageLabeller extends JFrame implements ActionListener {
         desktop.setMinimumSize(new Dimension(image.getWidth(),image.getHeight()));
         desktop.setMaximumSize(new Dimension(image.getWidth(),image.getHeight()));
         
+
         JLabel header = new JLabel();
         header.setText("<html><b>Labels:</b></html>");
         
         rightPane = new JPanel();
-        rightPane.setSize(145,image.getHeight());
-        rightPane.setPreferredSize(new Dimension(145,image.getHeight()));
-        rightPane.setMinimumSize(new Dimension(145,image.getHeight()));
-        rightPane.setMaximumSize(new Dimension(145,image.getHeight()));
-        rightPane.setLayout(new BoxLayout(rightPane,BoxLayout.X_AXIS));
-        //rightPane.add(header);
+        rightPane.setLayout(new GridBagLayout());
+        rightPane.setPreferredSize(new Dimension(155,image.getHeight()));
+        rightPane.setMinimumSize(new Dimension(155,image.getHeight()));
+        rightPane.setMaximumSize(new Dimension(155,image.getHeight()));
         
-        labelNames = new JPanel();
-        labelNames.setLayout(new BoxLayout(labelNames, BoxLayout.Y_AXIS));
-        labelNames.setPreferredSize(new Dimension(120,image.getHeight()));
-        labelNames.setMinimumSize(new Dimension(120,image.getHeight()));
-        labelNames.setMaximumSize(new Dimension(120,image.getHeight()));
-        deleteButtons = new JPanel();
-        deleteButtons.setLayout(new BoxLayout(deleteButtons, BoxLayout.Y_AXIS));
-        deleteButtons.setPreferredSize(new Dimension(25,image.getHeight()));
-        deleteButtons.setMinimumSize(new Dimension(25,image.getHeight()));
-        deleteButtons.setMaximumSize(new Dimension(25,image.getHeight()));
-        rightPane.add(labelNames);
-        rightPane.add(deleteButtons);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+    	c.gridy = 0;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 2;
+     	rightPane.add(header,c);
         
+        c.gridx = 0;
+    	c.gridy = 100;
+        c.weightx = 0;
+        c.weighty = 1;
+     	rightPane.add(new JLabel(""),c);
+    
         mainArea.add(desktop);
         mainArea.add(Box.createRigidArea(new Dimension(5,image.getHeight())));
         mainArea.add(rightPane);
-        mainArea.setSize(image.getWidth()+150,image.getHeight());
+        mainArea.setSize(image.getWidth()+160,image.getHeight());
         //create first "window"
 
         setContentPane(mainArea);
@@ -101,6 +105,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
         setJMenuBar(createMenuBar());
         
         labelList = new HashMap<Integer,PolygonLabel>();
+        desktop.openLabel("data/"+file.getName() + ".xml");
     }
     
     protected void addLabel(String text, int id) {
@@ -133,6 +138,7 @@ public class ImageLabeller extends JFrame implements ActionListener {
     	public EditableJLabel newLabel;
     	public String text;
     	public JPanel buttonBorder;
+    	public JPanel labelBorder;
     	public JButton x;
     	public int id;
     	public PolygonLabel(String text,final int id) {
@@ -140,10 +146,9 @@ public class ImageLabeller extends JFrame implements ActionListener {
     		this.text = text;
 	    	newLabel = new EditableJLabel(text);
 	    	//newLabel.setText(text);
-	    	newLabel.setPreferredSize(new Dimension(105,25));
-            newLabel.setMaximumSize(new Dimension(105,25));
-            newLabel.setMinimumSize(new Dimension(105,25));
-	    	newLabel.setBorder(new EmptyBorder(2,2,2,2));
+	    	newLabel.setPreferredSize(new Dimension(115,25));
+            newLabel.setMaximumSize(new Dimension(115,25));
+            newLabel.setMinimumSize(new Dimension(115,25));
 	    	ValueChangedListener valueListener = new ValueChangedListener() {
 				@Override
 				public void valueChanged(String value, JComponent source) {
@@ -163,24 +168,29 @@ public class ImageLabeller extends JFrame implements ActionListener {
 			newLabel.addMouseOverListener(mouseListener);
 	    	newLabel.addValueChangedListener(valueListener);
 	    	
-	    	buttonBorder = new JPanel();
-	    	buttonBorder.setPreferredSize(new Dimension(20,25));
-	    	buttonBorder.setMaximumSize(new Dimension(20,25));
-	    	buttonBorder.setMinimumSize(new Dimension(20,25));
 	    	x = new JButton();
 	    	x.setText("x");
-	    	x.setPreferredSize(new Dimension(20,13));
-	    	x.setMaximumSize(new Dimension(20,13));
-	    	x.setMinimumSize(new Dimension(20,13));
+	    	x.setPreferredSize(new Dimension(45,25));
+	    	x.setMaximumSize(new Dimension(45,25));
+	    	x.setMinimumSize(new Dimension(45,25));
 	    	x.addActionListener(new DeleteListener(this));
-	    	labelNames.add(newLabel,id);
-	    	buttonBorder.add(x);
-	    	deleteButtons.add(buttonBorder,id);
+	    	
+	    	GridBagConstraints c = new GridBagConstraints();
+	    	c.anchor = GridBagConstraints.NORTHWEST;
+	    	c.weightx = 0.8;
+	    	c.weighty = 0;
+	        c.gridx = 0;
+	        c.gridy = id+1;
+	        rightPane.add(newLabel,c);
+	        c.anchor = GridBagConstraints.NORTHWEST;
+	        c.weightx = 0;
+	        c.gridx = 1;
+	        c.gridy = id+1;
+	    	rightPane.add(x,c);
     	}
     	public void delete() {
     		newLabel.setVisible(false);
 			x.setVisible(false);
-			buttonBorder.setVisible(false);
 			desktop.mouseOverPolygon(false,id);
     	}
     	public int getPolygonId() {
@@ -307,18 +317,13 @@ public class ImageLabeller extends JFrame implements ActionListener {
 	        //Display the window.
 	        frame.setVisible(true);
         } catch (Exception e) {
-        	System.out.println("fail");
+        	System.out.println("Fatal Error");
         }
            
     }
 
-
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                File initialImage = new File("images/initial.jpg");
-            	setupGUI(initialImage);
-            }
-        });
+    	File initialImage = new File("images/initial.jpg");
+    	setupGUI(initialImage); 
     }
 }

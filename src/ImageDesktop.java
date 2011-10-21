@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,14 +24,13 @@ import java.util.Stack;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.sun.tools.javac.code.Attribute.Array;
 
 /**
  * HCI Project Phase 1
@@ -97,20 +94,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		
 		pressed = false;
 		
-		//openLabel(ImageLabeller.imageFilename+ ".xml");
-		if (labelsExist()) {
-			System.out.println("labels exist");
-		} else {
+		
+		if (!labelsExist()) {
 			runTutorial();
 		}
-		String[] ext = new String[5];
- 		ext[0] = "jpeg";
- 		ext[1] = "jpg";
- 		ext[2] = "gif";
- 		ext[3] = "png";
- 		ext[4] = "tiff";
- 		fc.setFileFilter(new FileNameExtensionFilter("Images",ext));
+		
  		fc.setAcceptAllFileFilterUsed(false);
+ 		//openImage();
 	}
 	/**
 	 * 
@@ -243,6 +233,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		}
 		repaint();
 	}
+	private boolean maxLabels() {
+		if(parent.labelList.size()>15) {
+			JOptionPane.showMessageDialog(this, "You have created the maximum number of labels.<br>Please delete one before creating more.");
+			return true;
+		} else {
+			return false;
+		}
+	}
 	private boolean isOpenDialog() {
 		if(getAllFrames().length > 0) {
 			for(JInternalFrame f : getAllFrames()) {
@@ -260,14 +258,14 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		startpoint = null;
   	  	lastdragpoint = null;
   	  	undoStack.push(new UndoAction("deleteCurrentPolygon",currentPolygon));
-  	  	checkUndoRedo();
 		currentPolygon = new ArrayList<Point>();
 		repaint();
+		clearRedo();
 	}
 	
 	public void deletePolygon(int id) {
 		undoStack.push(new UndoAction("deleteSavedPolygon",polygonsList.get(id),parent.getLabelText(id),id));
-		checkUndoRedo();
+		clearRedo();
 		polygonsList.remove(id);
 		parent.deleteLabel(id);
 		repaint();
@@ -286,13 +284,11 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void finishNewPolygon(String label) {
-		System.out.println(polygonsList.size());
 		if (currentPolygon != null ) {
 			polygonsList.put(labelIncrementor,currentPolygon);
-			System.out.println("ince"+labelIncrementor);
 			parent.addLabel(label,labelIncrementor);
 			undoStack.push(new UndoAction("completePolygon",labelIncrementor));
-			checkUndoRedo();
+			clearRedo();
 			
 			labelIncrementor++;
 			saveLabel();
@@ -314,7 +310,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	public boolean labelsExist() {
 		
 		String files;
-		File folder = new File(".");
+		File folder = new File("data");
 		File[] listOfFiles = folder.listFiles(); 
 		
 		for (int i = 0; i < listOfFiles.length; i++) 
@@ -334,7 +330,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
 	public void saveLabel() {
-		String currentImageLabels = ImageLabeller.imageFilename + ".xml";
+		String currentImageLabels = "data/"+ImageLabeller.imageFilename + ".xml";
 		
 		try {
 			FileOutputStream os = new FileOutputStream(currentImageLabels);
@@ -343,7 +339,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		    HashMap<Integer, String> stringSet = new HashMap<Integer, String>();
 		    for (Integer i : parent.labelList.keySet()) {
 		    	stringSet.put(i,(parent.labelList.get(i).getText()));
-		    	System.out.println(parent.labelList.get(i).getText());
 		    }
 		    
 	    	encoder.writeObject(stringSet);
@@ -375,7 +370,13 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
  	public void openImage() {
- 		
+ 		String[] ext = new String[5];
+ 		ext[0] = "jpeg";
+ 		ext[1] = "jpg";
+ 		ext[2] = "gif";
+ 		ext[3] = "png";
+ 		ext[4] = "tiff";
+ 		fc.setFileFilter(new FileNameExtensionFilter("Images",ext));
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
 		
@@ -389,22 +390,22 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 				System.out.println("invalid image");
 			}
 			resetState();
-	        openLabel(file.getName() + ".xml");
+	        openLabel("data/"+file.getName() + ".xml");
 		}
 	}
  	
+	@SuppressWarnings("unchecked")
 	public void openLabel(String imageLabelFile) {
 		try {
 			FileInputStream is = new FileInputStream(imageLabelFile);
 			XMLDecoder decoder = new XMLDecoder(is);
 				
-			HashMap readMap = (HashMap) decoder.readObject();
+			HashMap<Integer,String> readMap = (HashMap<Integer,String>) decoder.readObject();
 			polygonsList = (HashMap<Integer, ArrayList<Point>>) decoder.readObject();
 			int i = 0;
-			for (Object key : readMap.keySet()) {
-				String value = (String) readMap.get(key);
-				int keyid = Integer.parseInt(key.toString());
-				System.out.println("Loaded Label:"+value);
+			for (Integer key : readMap.keySet()) {
+				String value = readMap.get(key);
+				int keyid = key;
 				
 				parent.addLabel(value, i);
 				if(i!=keyid) {
@@ -480,7 +481,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 					redoStack.push(new RedoAction("completePolygon",text,last.getId()));
 				} else {
 					undo();
-					System.out.println("HUGE PROBLEM");
 				}
 			}
 		} else if(last.action().equals("deleteCurrentPolygon")){
@@ -503,16 +503,16 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			parent.updateLabel(last.getId(),last.getLabel(),false);
 		} else {
 			undo();
-			System.out.println("HUGE PROBLEM");
 		}
 		checkUndoRedo();
 	}
 	protected void pushEditUndo(int id, String label) {
 		undoStack.push(new UndoAction("editLabel",label, id));
-		checkUndoRedo();
+		clearRedo();
 	}
 	protected void clearRedo() {
 		redoStack = new Stack<RedoAction>();
+		checkUndoRedo();
 	}
 	protected void redo() {
 		if(pressed || redoStack.empty()) {
@@ -566,7 +566,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			deletePolygon(next.getId());
 			repaint();
 		} else if(next.action().equals("editLabel")) {
-			System.out.println(next.getId());
 			undoStack.push(new UndoAction("editLabel",parent.getLabelText(next.getId()),next.getId()));
 			parent.updateLabel(next.getId(),next.getLabel(),false);
 		} else {
@@ -599,7 +598,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	
 	public void drawPolygon(ArrayList<Point> polygon, boolean current,BufferedImage temp) {
 		Graphics2D g = (Graphics2D)temp.getGraphics();
-		boolean first = false;
 		g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		for(int i = 0; i < polygon.size(); i++) {
 			Point currentVertex = polygon.get(i);
@@ -714,11 +712,10 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		System.out.println("num  labels"+parent.labelList.size());
 		pressed = true;
-		if(!isOpenDialog() && e.getButton() == MouseEvent.BUTTON1) {
+		if(!maxLabels() && !isOpenDialog() && e.getButton() == MouseEvent.BUTTON1) {
+			pressed = true;
 			boolean end = false;
-			boolean dragpoint = false;
 			x1 = e.getX();
 			y1 = e.getY();
 			if(startpoint == null) {
@@ -733,22 +730,32 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		    } else if(lastdragpoint != null && lastdragpoint.near(new Point(x1,y1,1))) {
 		    	  //we don't add another point here because you are just starting
 		    	  //another drag
-		    	dragpoint = true;
 		    	return;
 		    } else {
 		    	lastdragpoint = new Point(x1,y1,8,true);
 		    	currentPolygon.add(lastdragpoint);
 		    }
 		      
-				
+			Graphics2D g = (Graphics2D)this.getGraphics();
 
-			if(end) {
-				addNewPolygon();
-			}
+		      //if the left button than we will add a vertex to poly
+		
+				g.setColor(Color.RED);
+				if (currentPolygon.size() > 1) {
+					Point lastVertex = currentPolygon.get(currentPolygon.size() - 2);
+					g.setStroke(new BasicStroke(4.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+					g.drawLine(lastVertex.getX(), lastVertex.getY(), x1, y1);
+				}
+				
+				if(!end) {
+					g.fillOval(x1-7,y1-7,15,15);
+				} else {
+					addNewPolygon();
+				}
 
 		    	  //System.out.println(x1 + " " + y1);
 			undoStack.push(new UndoAction("addPointToCurrent"));
-			checkUndoRedo();
+			clearRedo();
 			mouseOverCheck(e);
 		}
 	}
@@ -756,7 +763,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(pressed && !isOpenDialog()) {
-			clearRedo();
 			if(dragging) {
 				dragging = false;
 				if(startpoint != null && startpoint.near(new Point(e.getX(),e.getY(),1))) {
@@ -772,7 +778,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			}
 			mouseOverCheck(e);
 			undoStack.push(new UndoAction("addPointToCurrent"));
-			checkUndoRedo();
+			clearRedo();
 		}
 		pressed = false;
 	}
