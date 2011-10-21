@@ -301,7 +301,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	}
 	
  	public static void openImage() {
- 		
+		parent.labelList = null;
+		labelIncrementor = 0;
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
 		
@@ -316,6 +317,7 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
  	
 	public static void openLabel(String imageLabelFile) {
 
+		
 	        try {
 				FileInputStream is = new FileInputStream(imageLabelFile);
 				XMLDecoder decoder = new XMLDecoder(is);
@@ -466,7 +468,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 			repaint();
 		} else if(next.action().equals("deleteSavedPolygon")) {
 			deletePolygon(next.getId());
-			parent.deleteLabel(next.getId());
 			repaint();
 		} else if(next.action().equals("editLabel")) {
 			System.out.println(next.getId());
