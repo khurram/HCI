@@ -11,14 +11,14 @@ import javax.swing.border.EmptyBorder;
 
 public class Tutorial2{
 	private JPanel inner;
-	private int step = 1;
+	private int step = 0;
 	private JInternalFrame frame;
-	public Tutorial2(ImageDesktop parent) throws IOException {
+	public Tutorial2(ImageDesktop parent) {
 		frame = new JInternalFrame("Tips", false, true, false, false);
 		frame.putClientProperty("type", "tutorial");
 		frame.setSize(250,150);
 		frame.setLocation(10,10);
-        frame.setVisible(true);
+        frame.setVisible(false);
         
         parent.add(frame);
 		
@@ -58,14 +58,16 @@ public class Tutorial2{
 		pane3.add(text,BorderLayout.PAGE_START);
 		
 		inner.add(pane1,"1");
-		inner.add(pane2,"3");
-		inner.add(pane3,"5");
-		layout.show(inner,"1");
+		inner.add(pane2,"2");
+		inner.add(pane3,"3");
+		layout.show(inner,"0");
 	}
 	public void next() {
-		if(step<=5) {
-			frame.setVisible(!frame.isVisible());
+		if(step<=3) {
+			frame.setVisible(true);
 			((CardLayout) inner.getLayout()).show(inner,++step+"");
+		} else {
+			frame.setVisible(false);
 		}
 	}
 	public int getStep() {
