@@ -286,7 +286,8 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		    
 		    HashMap<Integer, String> stringSet = new HashMap();
 		    System.out.println(labelIncrementor);
-		    for (int i=0; i<=labelIncrementor; i++){
+		    System.out.println(parent.labelList.size());
+		    for (int i=0; i<parent.labelList.size(); i++){
 		    	stringSet.put(i,(ImageLabeller.labelList.get(i).getText()));
 		    	System.out.println(parent.labelList.get(i).getText());
 		    }
