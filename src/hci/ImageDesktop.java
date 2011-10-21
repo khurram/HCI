@@ -1,3 +1,5 @@
+package hci;
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -32,6 +34,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.DefaultDesktopManager;  
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 /**
  * HCI Project Phase 1

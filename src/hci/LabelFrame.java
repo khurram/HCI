@@ -1,3 +1,4 @@
+package hci;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;

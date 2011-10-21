@@ -1,3 +1,4 @@
+package hci;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
