@@ -242,8 +242,6 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 		undoStack.push(new UndoAction("deleteSavedPolygon",polygonsList.get(id),parent.getLabelText(id),id));
 		polygonsList.remove(id);
 		parent.deleteLabel(id);
-		labelIncrementor--;
-		labelIncrementor--;
 		repaint();
 
 		saveLabel();
