@@ -48,15 +48,15 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	private Point startpoint = null;
 	private Point lastdragpoint = null;
 	
-	private ArrayList<Point> currentPolygon = null;
+	private static ArrayList<Point> currentPolygon = null;
 	static HashMap<Integer,ArrayList<Point>> polygonsList = null;
 	
 	private JPanel drawings;
 	
 	private BufferedImage image;
 	
-	private Stack<UndoAction> undoStack;
-	private Stack<RedoAction> redoStack;
+	private static Stack<UndoAction> undoStack;
+	private static Stack<RedoAction> redoStack;
 	
 	private static int labelIncrementor = 0;
 	
@@ -300,9 +300,18 @@ public class ImageDesktop extends JDesktopPane implements MouseListener, MouseMo
 	    }
 	}
 	
- 	public static void openImage() {
+	public static void resetState() {
 		parent.labelList = null;
 		labelIncrementor = 0;
+		polygonsList = null;
+		currentPolygon = null;
+		undoStack = null;
+		redoStack = null;
+	}
+	
+ 	public static void openImage() {
+ 		resetState();
+ 		
 		fc.setCurrentDirectory(new File("images"));
 		int returnVal = fc.showOpenDialog(parent);
 		
